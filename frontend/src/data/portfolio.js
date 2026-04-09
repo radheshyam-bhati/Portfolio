@@ -114,18 +114,18 @@ export const education = [
 
 export const certifications = [
   {
-    title: 'AI Prompt Engineering Masterclass',
-    org: 'Reliance Digital',
+    title: 'Operating Systems Bootcamp',
+    org: 'DevTown (GDG VIT-AP)',
     icon: 'award',
     color: '#ef4444',
-    detail: 'Masterclass',
+    detail: 'Feb 2026',
   },
   {
-    title: 'Cybersecurity Job Simulation',
-    org: 'Completion Certificate',
+    title: 'Cybersecurity Course',
+    org: 'Skill India (Tech Mahindra Foundation)',
     icon: 'shield',
     color: '#dc2626',
-    detail: 'Simulation',
+    detail: 'Dec 2025',
   },
   {
     title: 'Power BI Workshop',
