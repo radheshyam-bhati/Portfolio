@@ -13,11 +13,7 @@ export const hero = {
   subtitle: 'Building Agentic AI Systems | AI Product Engineering | Systems Thinking | CSE.',
 };
 
-export const aboutStats = [
-  { value: '2', label: 'Live Prototypes' },
-  { value: '2', label: 'Hackathons' },
-  { value: '3', label: 'Certifications' },
-];
+export const aboutStats = [];
 
 export const milestones = [
   {

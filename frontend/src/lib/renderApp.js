@@ -428,20 +428,26 @@ export function renderPortfolioApp() {
             <div class="space-y-5 text-lg leading-relaxed text-gray-400 font-light" data-reveal="up" data-delay="0.10">
               <p>I'm a <span class="text-white font-medium">Computer Science &amp; Engineering student</span> focused on building practical AI and cybersecurity products that solve real user problems.</p>
               <p>Currently studying at <span class="font-medium" style="color: var(--color-neon-blue);">PW Institute of Innovation</span>, Pune, while sharpening product thinking, fast iteration, and technical communication.</p>
-              <div class="flex gap-8 pt-4">
-                ${aboutStats
-                  .map(
-                    (stat) => `
-                      <div>
-                        <div class="text-3xl font-bold" style="background: linear-gradient(135deg, #ef4444, #dc2626); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                          ${escapeHtml(stat.value)}
-                        </div>
-                        <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">${escapeHtml(stat.label)}</div>
-                      </div>
-                    `,
-                  )
-                  .join('')}
-              </div>
+              ${
+                aboutStats.length
+                  ? `
+                    <div class="flex gap-8 pt-4">
+                      ${aboutStats
+                        .map(
+                          (stat) => `
+                            <div>
+                              <div class="text-3xl font-bold" style="background: linear-gradient(135deg, #ef4444, #dc2626); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                                ${escapeHtml(stat.value)}
+                              </div>
+                              <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">${escapeHtml(stat.label)}</div>
+                            </div>
+                          `,
+                        )
+                        .join('')}
+                    </div>
+                  `
+                  : ''
+              }
             </div>
 
             <div class="relative pl-8 space-y-10">
