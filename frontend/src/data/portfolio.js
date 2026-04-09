@@ -119,6 +119,7 @@ export const certifications = [
     icon: 'award',
     color: '#ef4444',
     detail: 'Feb 2026',
+    certificateFile: 'certificates/operating-systems-bootcamp-devtown-gdg-vit-ap.pdf',
   },
   {
     title: 'Cybersecurity Course',
@@ -126,6 +127,7 @@ export const certifications = [
     icon: 'shield',
     color: '#dc2626',
     detail: 'Dec 2025',
+    certificateFile: 'certificates/cybersecurity-job-simulation.pdf',
   },
   {
     title: 'Power BI Workshop',

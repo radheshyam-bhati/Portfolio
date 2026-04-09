@@ -10,7 +10,7 @@ import {
   contactInfo,
 } from '../data/portfolio.js';
 import { renderIcon } from './icons.js';
-import { escapeHtml, hexToRgba } from './utils.js';
+import { escapeHtml, hexToRgba, resolveAssetUrl } from './utils.js';
 
 function renderSectionHeading(number, title) {
   return `
@@ -253,25 +253,47 @@ function renderEducationMarkup() {
 
 function renderCertificationsMarkup() {
   return certifications
-    .map(
-      (cert, index) => `
+    .map((cert, index) => {
+      const certificateUrl = cert.certificateFile
+        ? resolveAssetUrl(cert.certificateFile)
+        : null;
+      const certificateAttributes = certificateUrl
+        ? `href="${escapeHtml(certificateUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Open ${escapeHtml(cert.title)} certificate"`
+        : '';
+      const wrapperTag = certificateUrl ? 'a' : 'div';
+
+      return `
         <div data-reveal="up" data-delay="${(index * 0.1).toFixed(2)}">
-          <article
-            class="accent-card relative rounded-2xl p-7 border flex flex-col items-center text-center group overflow-hidden"
-            style="--accent: ${cert.color}; --accent-border: ${hexToRgba(cert.color, 0.18)}; --accent-soft: ${hexToRgba(cert.color, 0.15)}; --accent-glow: ${hexToRgba(cert.color, 0.16)}; background: rgba(12, 12, 12, 0.8); backdrop-filter: blur(20px); border-color: rgba(255,255,255,0.06);"
+          <${wrapperTag}
+            ${certificateAttributes}
+            class="block"
           >
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style="background: radial-gradient(circle, ${hexToRgba(cert.color, 0.18)}, transparent); filter: blur(20px); top: -20px;"></div>
-            <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 relative z-10 transition-transform duration-300 group-hover:scale-110" style="background: ${hexToRgba(cert.color, 0.15)}; border: 1px solid ${hexToRgba(cert.color, 0.25)};">
-              ${renderIcon(cert.icon, { size: 26, stroke: cert.color, strokeWidth: 1.9 })}
-            </div>
-            <h3 class="text-base font-bold text-white mb-2 relative z-10 leading-snug">${escapeHtml(cert.title)}</h3>
-            <p class="text-xs font-medium mb-2 relative z-10" style="color: ${cert.color}; opacity: 0.9;">${escapeHtml(cert.org)}</p>
-            <span class="text-xs text-gray-600 font-mono relative z-10">${escapeHtml(cert.detail)}</span>
-            <div class="absolute bottom-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: linear-gradient(to right, transparent, ${hexToRgba(cert.color, 0.5)}, transparent);"></div>
-          </article>
+            <article
+              class="accent-card relative rounded-2xl p-7 border flex flex-col items-center text-center group overflow-hidden ${certificateUrl ? 'cursor-pointer' : ''}"
+              style="--accent: ${cert.color}; --accent-border: ${hexToRgba(cert.color, 0.18)}; --accent-soft: ${hexToRgba(cert.color, 0.15)}; --accent-glow: ${hexToRgba(cert.color, 0.16)}; background: rgba(12, 12, 12, 0.8); backdrop-filter: blur(20px); border-color: rgba(255,255,255,0.06);"
+            >
+              <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style="background: radial-gradient(circle, ${hexToRgba(cert.color, 0.18)}, transparent); filter: blur(20px); top: -20px;"></div>
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 relative z-10 transition-transform duration-300 group-hover:scale-110" style="background: ${hexToRgba(cert.color, 0.15)}; border: 1px solid ${hexToRgba(cert.color, 0.25)};">
+                ${renderIcon(cert.icon, { size: 26, stroke: cert.color, strokeWidth: 1.9 })}
+              </div>
+              <h3 class="text-base font-bold text-white mb-2 relative z-10 leading-snug">${escapeHtml(cert.title)}</h3>
+              <p class="text-xs font-medium mb-2 relative z-10" style="color: ${cert.color}; opacity: 0.9;">${escapeHtml(cert.org)}</p>
+              <span class="text-xs text-gray-600 font-mono relative z-10">${escapeHtml(cert.detail)}</span>
+              ${
+                certificateUrl
+                  ? `
+                    <span class="mt-4 text-xs uppercase tracking-[0.24em] relative z-10" style="color: ${cert.color}; opacity: 0.82;">
+                      View Certificate
+                    </span>
+                  `
+                  : ''
+              }
+              <div class="absolute bottom-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: linear-gradient(to right, transparent, ${hexToRgba(cert.color, 0.5)}, transparent);"></div>
+            </article>
+          </${wrapperTag}>
         </div>
-      `,
-    )
+      `;
+    })
     .join('');
 }
 

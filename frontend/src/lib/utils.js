@@ -27,3 +27,8 @@ export function hexToRgba(hex, alpha) {
 export function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
+
+export function resolveAssetUrl(path) {
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  return `${baseUrl}${String(path).replace(/^\/+/, '')}`;
+}
