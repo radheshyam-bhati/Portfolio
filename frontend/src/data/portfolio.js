@@ -130,11 +130,12 @@ export const certifications = [
     certificateFile: 'certificates/cybersecurity-job-simulation.pdf',
   },
   {
-    title: 'Power BI Workshop',
-    org: 'Office Master',
+    title: 'Yophoria Innovation Challenge 2025',
+    org: 'YoLearn.ai',
     icon: 'database',
     color: '#fb7185',
-    detail: 'Workshop',
+    detail: 'Oct 2025',
+    certificateFile: 'certificates/yophoria-innovation-challenge-2025-yolearn-ai.pdf',
   },
 ];
 
