@@ -374,6 +374,7 @@ function initProjectCards() {
     const glow = card.querySelector('.project-card-glow');
     const title = card.querySelector('.project-card-title');
     const border = card.querySelector('.project-card-border');
+    const previewMedia = card.querySelector('[data-project-preview-media]');
     const accent = card.dataset.accent || '#ef4444';
     const accentBorder = card.dataset.accentBorder || 'rgba(239,68,68,0.18)';
     const accentShadow = card.dataset.accentShadow || 'rgba(239,68,68,0.12)';
@@ -381,17 +382,25 @@ function initProjectCards() {
 
     card.addEventListener('mouseenter', () => {
       gsap.to(card, {
-        boxShadow: `0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px ${accentBorder}, 0 0 40px ${accentShadow}`,
-        duration: 0.3,
+        boxShadow: `0 28px 70px rgba(0,0,0,0.48), 0 0 0 1px ${accentBorder}, 0 0 40px ${accentShadow}`,
+        duration: 0.32,
       });
       gsap.to(title, {
-        textShadow: `0 0 20px ${accentShadow}`,
+        textShadow: `0 0 16px ${accentShadow}`,
         duration: 0.3,
       });
       gsap.to(border, {
         opacity: 1,
         duration: 0.3,
       });
+      if (previewMedia) {
+        gsap.to(previewMedia, {
+          scale: 1.03,
+          y: -6,
+          duration: 0.45,
+          ease: 'power2.out',
+        });
+      }
     });
 
     card.addEventListener('mousemove', (event) => {
@@ -402,8 +411,8 @@ function initProjectCards() {
       const glowY = ((event.clientY - rect.top) / rect.height) * 100;
 
       gsap.to(card, {
-        rotateX: offsetY * -8,
-        rotateY: offsetX * 8,
+        rotateX: offsetY * -4,
+        rotateY: offsetX * 4,
         duration: 0.35,
         ease: 'power3.out',
       });
@@ -418,7 +427,7 @@ function initProjectCards() {
       gsap.to(card, {
         rotateX: 0,
         rotateY: 0,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+        boxShadow: '0 18px 40px rgba(0,0,0,0.28)',
         duration: 0.45,
         ease: 'power3.out',
       });
@@ -437,7 +446,76 @@ function initProjectCards() {
         glow.style.opacity = '0';
         glow.style.background = `radial-gradient(circle at 50% 50%, ${accent}00 0%, transparent 60%)`;
       }
+
+      if (previewMedia) {
+        gsap.to(previewMedia, {
+          scale: 1,
+          y: 0,
+          duration: 0.45,
+          ease: 'power3.out',
+        });
+      }
     });
+  });
+}
+
+function initCertificateModal() {
+  const modal = document.querySelector('[data-certificate-modal]');
+
+  if (!modal) {
+    return;
+  }
+
+  const title = modal.querySelector('[data-certificate-title]');
+  const meta = modal.querySelector('[data-certificate-meta]');
+  const summary = modal.querySelector('[data-certificate-summary]');
+  const frame = modal.querySelector('[data-certificate-frame]');
+  const openLink = modal.querySelector('[data-certificate-open]');
+  const downloadLink = modal.querySelector('[data-certificate-download]');
+  const closeControls = [...modal.querySelectorAll('[data-certificate-close]')];
+  const triggers = [...document.querySelectorAll('[data-certificate-trigger]')];
+
+  if (!title || !meta || !summary || !frame || !openLink || !downloadLink || triggers.length === 0) {
+    return;
+  }
+
+  function closeModal() {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    frame.removeAttribute('src');
+  }
+
+  function openModal(trigger) {
+    const certificateUrl = trigger.dataset.certificateUrl;
+
+    if (!certificateUrl) {
+      return;
+    }
+
+    title.textContent = trigger.dataset.certificateTitle || 'Certificate';
+    meta.textContent = `${trigger.dataset.certificateOrg || ''} · ${trigger.dataset.certificateDetail || ''}`.replace(/^ · | · $/g, '');
+    summary.textContent = trigger.dataset.certificateSummary || '';
+    frame.setAttribute('src', `${certificateUrl}#toolbar=0&navpanes=0&view=FitH`);
+    openLink.setAttribute('href', certificateUrl);
+    downloadLink.setAttribute('href', certificateUrl);
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
+
+  triggers.forEach((trigger) => {
+    trigger.addEventListener('click', () => openModal(trigger));
+  });
+
+  closeControls.forEach((control) => {
+    control.addEventListener('click', closeModal);
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+      closeModal();
+    }
   });
 }
 
@@ -499,6 +577,14 @@ function initContactForm() {
     return errors;
   }
 
+  function buildMailtoUrl({ name, email, message }) {
+    const directEmail = form.dataset.directEmail || '';
+    const subject = `Portfolio inquiry from ${name}`;
+    const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
+
+    return `mailto:${directEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
   function setSubmitting(isSubmitting, state = 'default') {
     submitButton.disabled = isSubmitting;
     submitButton.classList.toggle('is-loading', isSubmitting);
@@ -540,6 +626,18 @@ function initContactForm() {
     setSubmitting(true);
     setStatus('loading', 'Sending your message…');
 
+    if (window.location.hostname.endsWith('github.io') && form.dataset.directEmail) {
+      window.location.href = buildMailtoUrl(payload);
+      setStatus('success', 'Opening your email app with a pre-filled message.');
+      setSubmitting(false, 'success');
+
+      window.setTimeout(() => {
+        setSubmitting(false);
+      }, 3200);
+
+      return;
+    }
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -574,6 +672,19 @@ function initContactForm() {
       }, 4000);
     } catch (error) {
       console.error('Failed to submit contact form', error);
+
+      if (form.dataset.directEmail) {
+        window.location.href = buildMailtoUrl(payload);
+        setStatus('success', 'The form opened your email app so you can send the message directly.');
+        setSubmitting(false, 'success');
+
+        window.setTimeout(() => {
+          setSubmitting(false);
+        }, 3200);
+
+        return;
+      }
+
       setStatus('error', 'The message could not be sent right now. Please try again later.');
       setSubmitting(false);
     }
@@ -590,6 +701,7 @@ export function initPortfolioInteractions() {
   initCursor();
   initMagneticElements();
   initProjectCards();
+  initCertificateModal();
   initContactForm();
 
   return smoothScroll;

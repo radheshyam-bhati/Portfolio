@@ -1,7 +1,7 @@
 export const navLinks = [
   { href: '#about', label: 'About' },
   { href: '#skills', label: 'Skills' },
-  { href: '#projects', label: 'Projects' },
+  { href: '#projects', label: 'Work' },
   { href: '#education', label: 'Education' },
   { href: '#contact', label: 'Contact' },
 ];
@@ -10,7 +10,13 @@ export const hero = {
   firstName: 'Radheshyam',
   lastName: 'Bhati',
   location: 'Jodhpur, Rajasthan, India',
-  subtitle: 'AI Product Engineer building practical web apps, intelligent systems, and real-world prototypes.',
+  eyebrow: 'AI Product Engineering · Full-Stack Prototyping',
+  headline: 'I build practical AI products, web apps, and intelligent prototypes that solve real user problems.',
+  summary:
+    'Computer Science & Engineering student focused on turning raw ideas into usable products with strong systems thinking, clean execution, and demo-ready polish.',
+  availability: 'Open to internships, freelance builds, and product collaborations.',
+  resumeFile: 'Resume.pdf',
+  heroTags: ['AI systems', 'Web products', 'Prototype execution'],
 };
 
 export const aboutStats = [];
@@ -59,11 +65,29 @@ export const skillGroups = [
 export const projects = [
   {
     title: 'National E-Voting Portal (Client-Side Simulation)',
-    type: 'Browser-Based EVM + VVPAT Simulation',
+    type: 'Selected Work',
+    label: 'Browser-Based EVM + VVPAT Simulation',
+    proof:
+      'Simulated a realistic EVM + VVPAT workflow with hashed voter validation, one-vote enforcement, and persistent browser-side results tracking.',
     description:
-      'Engineered a fully client-side simulation of an EVM + VVPAT system to mirror real-world voting workflows, using hashed EPIC-style voter IDs for one-vote enforcement, realistic vote confirmation and slip generation, persistent vote tracking with IndexedDB and LocalStorage, and a Chart.js-powered results dashboard for educational demos.',
+      'An educational product simulation designed to mirror real-world voting behavior inside the browser without relying on a backend.',
+    challenge:
+      'Model a trustworthy election flow in a fully client-side environment while keeping the interface believable, controlled, and easy to demonstrate.',
+    built:
+      'Built hashed EPIC-style voter handling, guided vote confirmation, VVPAT slip visualization, IndexedDB plus LocalStorage persistence, and a results dashboard powered by Chart.js.',
+    impact:
+      'Created a strong demo piece for explaining system behavior, usability constraints, and election workflow logic in a clean, interactive format.',
+    badges: ['Educational demo', 'Browser-only architecture', 'Persistent results'],
+    highlights: [
+      'Hashed EPIC-style voter validation and one-vote enforcement',
+      'VVPAT confirmation flow with controlled interaction states',
+      'Persistent results tracking with IndexedDB, LocalStorage, and Chart.js',
+    ],
+    context: 'Independent educational simulation',
     liveLink: 'https://radheshyam-cod.github.io/Online-Voting-system/',
     repoLink: 'https://github.com/radheshyam-cod/Online-Voting-system',
+    repoLabel: 'GitHub Repo',
+    liveLabel: 'Live Demo',
     tech: [
       'HTML',
       'CSS',
@@ -73,12 +97,34 @@ export const projects = [
       'Chart.js',
     ],
     accentColor: '#ef4444',
+    mockup: {
+      type: 'voting',
+      title: 'EVM Flow',
+      meta: ['Hashed voter ID', 'VVPAT preview', 'Results dashboard'],
+    },
   },
   {
     title: 'Fin-Mate',
-    type: 'Mumbai Hacks 2025',
+    type: 'Selected Work',
+    label: 'Mumbai Hacks 2025 Prototype',
+    proof:
+      'Designed an AI finance coach aimed at students and freelancers dealing with irregular income and inconsistent spending patterns.',
     description:
-      'Created an AI personal finance coach for students, freelancers, and early-stage earners with irregular income. It analyzes spending behavior, generates personalized budgets, sends proactive alerts, and prepares monthly financial reports.',
+      'A hackathon-built concept focused on making budgeting, reporting, and financial nudges more useful for early-stage earners.',
+    challenge:
+      'Translate messy, irregular cash flow into a simple product experience that feels supportive instead of overly technical or judgmental.',
+    built:
+      'Mapped an AI-driven workflow for spending analysis, personalized budgeting, proactive alerts, monthly report generation, and student-friendly onboarding.',
+    impact:
+      'Packaged the idea into a polished prototype that communicates both product thinking and execution speed under competitive conditions.',
+    badges: ['Hackathon build', 'AI budgeting workflow', 'Student-first UX'],
+    highlights: [
+      'Irregular-income budgeting flow designed for students and freelancers',
+      'AI-guided spending analysis, alerts, and monthly reporting journey',
+      'Hackathon-ready product framing with clear user value and demo clarity',
+    ],
+    context: 'Built during Mumbai Hacks 2025',
+    liveLabel: 'Request Walkthrough',
     tech: [
       'Python',
       'Flask/FastAPI',
@@ -88,8 +134,33 @@ export const projects = [
       'Firebase',
     ],
     accentColor: '#dc2626',
+    mockup: {
+      type: 'finance',
+      title: 'AI Budget Coach',
+      meta: ['Spending analysis', 'Smart alerts', 'Monthly reports'],
+    },
   },
 ];
+
+export const lookingFor = {
+  title: 'What I’m Looking For',
+  summary:
+    'I’m looking for roles and collaborations where I can contribute across product thinking, engineering execution, and AI-driven user experiences.',
+  opportunities: [
+    {
+      title: 'Internships',
+      description: 'Product engineering, AI tooling, web application, or systems-oriented internships.',
+    },
+    {
+      title: 'Freelance Builds',
+      description: 'Fast prototype sprints, portfolio sites, product demos, and intelligent workflow tools.',
+    },
+    {
+      title: 'Collaborations',
+      description: 'Hackathons, student product teams, startup experiments, and applied AI concepts.',
+    },
+  ],
+};
 
 export const education = [
   {
@@ -120,6 +191,8 @@ export const certifications = [
     color: '#ef4444',
     detail: 'Feb 2026',
     certificateFile: 'certificates/operating-systems-bootcamp-devtown-gdg-vit-ap.pdf',
+    summary:
+      'Covered process management, memory management, and core system fundamentals through a hands-on operating systems bootcamp.',
   },
   {
     title: 'Cybersecurity Course',
@@ -128,6 +201,8 @@ export const certifications = [
     color: '#dc2626',
     detail: 'Dec 2025',
     certificateFile: 'certificates/cybersecurity-job-simulation.pdf',
+    summary:
+      'Focused on digital threats, basic security practices, system safety concepts, and ways to protect systems and data from common vulnerabilities.',
   },
   {
     title: 'Yophoria Innovation Challenge 2025',
@@ -136,6 +211,8 @@ export const certifications = [
     color: '#fb7185',
     detail: 'Oct 2025',
     certificateFile: 'certificates/yophoria-innovation-challenge-2025-yolearn-ai.pdf',
+    summary:
+      'Participated in an AI innovation challenge centered on practical problem-solving, product thinking, and collaborative solution building.',
   },
 ];
 
