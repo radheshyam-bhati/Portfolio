@@ -6,9 +6,11 @@ import tailwindcss from '@tailwindcss/vite';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
+const isGitHubPagesBuild = process.env.DEPLOY_TARGET === 'github-pages';
 
 export default defineConfig({
   root: __dirname,
+  base: isGitHubPagesBuild ? '/Portfolio/' : '/',
   publicDir: path.resolve(projectRoot, 'public'),
   plugins: [tailwindcss()],
   build: {
