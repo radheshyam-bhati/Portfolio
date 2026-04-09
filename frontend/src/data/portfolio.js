@@ -10,7 +10,7 @@ export const hero = {
   firstName: 'Radheshyam',
   lastName: 'Bhati',
   location: 'Jodhpur, Rajasthan, India',
-  subtitle: 'Building Agentic AI Systems | AI Product Engineering | Systems Thinking | CSE.',
+  subtitle: 'AI Product Engineer building practical web apps, intelligent systems, and real-world prototypes.',
 };
 
 export const aboutStats = [];
