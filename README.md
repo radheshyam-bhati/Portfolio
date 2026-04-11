@@ -1,88 +1,70 @@
-# Radheshyam Portfolio
+# Radheshyam Bhati - Personal Portfolio
 
-Personal portfolio built with a static HTML/CSS/JavaScript frontend and an Express backend. The frontend serves a single-page portfolio experience with local GSAP and Lenis assets, and the backend handles contact form delivery through SMTP.
+A cyberpunk-themed, high-performance static portfolio website built with HTML, CSS (Tailwind CSS), and JavaScript. 
 
-## Project structure
+## 🚀 Live Demo
+
+[https://radheshyam-cod.github.io/radheshyam-portfolio/](https://radheshyam-cod.github.io/radheshyam-portfolio/) *(Subject to your actual GitHub Pages URL)*
+
+## 🛠 Features & Technology Stack
+
+- **Frontend Core**: Vanilla HTML5, CSS3, ES6 JavaScript.
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) (Compiled into `styles.css`).
+- **Animations**: [GSAP](https://gsap.com/) for scroll-triggered reveals, 3D hover effects, and parallax micro-interactions.
+- **Smooth Scrolling**: [Lenis](https://lenis.studiofreight.com/) for seamless vertical scrolling.
+- **Contact Form**: Powered by [FormSubmit](https://formsubmit.co/) (No backend required!).
+- **Hosting**: Statically hosted on GitHub Pages for zero-latency loading.
+
+## 📂 Project Structure
 
 ```text
-backend/
-  app.js
-  server.js
-  controllers/
-  middleware/
-  routes/
-  services/
-  utils/
-frontend/
-  index.html
-  script.js
-  styles.css
-  assets/
-  vendor/
-public/
+.
+├── index.html       # Main portfolio single page
+├── script.js        # GSAP animations, Lenis setup, and Form logic
+├── styles.css       # Compiled Tailwind CSS and custom animations
+├── image.png        # Profile image used in the Hero section
+├── Resume.pdf       # Downloadable resume
+├── assets/          # Local font files (Space Grotesk)
+├── vendor/          # Local GSAP & Lenis scripts
+└── certificates/    # PDF certificates
 ```
 
-## Requirements
+## 💻 Local Development
 
-- Node.js 20+
-- npm 10+
+Since the portfolio was recently migrated to be entirely static, there's no need for an `npm` build step, Node.js installation, or an Express backend server.
 
-## Environment variables
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/radheshyam-cod/radheshyam-portfolio.git
+   cd radheshyam-portfolio
+   ```
 
-Copy `.env.example` to `.env` and provide the Gmail app password for `radheshyambhati7451@gmail.com`.
+2. **Run locally:**
+   You can serve the directory using any static file server. For example:
+   
+   Using Python:
+   ```bash
+   python3 -m http.server
+   ```
+   *Or* using Node.js/npx:
+   ```bash
+   npx serve .
+   ```
+   *Or* simply use the **Live Server** extension in VS Code.
 
-```env
-PORT=3000
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
-SMTP_SECURE=true
-SMTP_USER=radheshyambhati7451@gmail.com
-SMTP_PASS=your-gmail-app-password
-CONTACT_TO_EMAIL=radheshyambhati7451@gmail.com
-CONTACT_FROM_EMAIL=radheshyambhati7451@gmail.com
-CONTACT_RATE_LIMIT_WINDOW_MS=600000
-CONTACT_RATE_LIMIT_MAX=5
+3. Open `http://localhost:8000` (or the port specified by your server) in your browser.
+
+## ✉️ Contact Form Configuration
+
+The contact form uses [FormSubmit](https://formsubmit.co/) to forward messages directly to email without requiring a custom backend server.
+
+To modify the recipient, change the email address in `script.js` located in the `fetch` request inside the `initContactForm` function:
+
+```javascript
+// script.js
+const response = await fetch("https://formsubmit.co/ajax/your-email@example.com", {
+  // ...
+});
 ```
 
-## Scripts
-
-- `npm run dev` starts the Express server in watch mode on port `3000`.
-- `npm run lint` runs ESLint across the browser script and backend source files.
-- `npm run verify` runs linting.
-- `npm run start` serves the production backend and static frontend.
-
-## API
-
-### `GET /api/health`
-
-Returns a basic health payload:
-
-```json
-{
-  "ok": true,
-  "status": "healthy",
-  "timestamp": "2026-04-09T12:00:00.000Z"
-}
-```
-
-### `POST /api/contact`
-
-Accepts:
-
-```json
-{
-  "name": "Your Name",
-  "email": "you@example.com",
-  "message": "Your message"
-}
-```
-
-Returns success or validation errors while keeping the response shape consistent with the frontend form.
-
-## Development flow
-
-1. Install dependencies with `npm install`.
-2. Create `.env` from `.env.example`, then paste your Gmail app password into `SMTP_PASS`.
-3. Run `npm run dev`.
-4. Open `http://localhost:3000`.
-5. Before shipping changes, run `npm run verify`.
+*Note: You must activate the FormSubmit endpoint by submitting the form once and confirming your email address via the link FormSubmit sends you.*
