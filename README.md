@@ -1,6 +1,6 @@
 # Radheshyam Portfolio
 
-Personal portfolio built with a vanilla Vite frontend and an Express backend. The frontend renders a single-page portfolio experience with GSAP and Lenis interactions, and the backend handles contact form delivery through SMTP.
+Personal portfolio built with a static HTML/CSS/JavaScript frontend and an Express backend. The frontend serves a single-page portfolio experience with local GSAP and Lenis assets, and the backend handles contact form delivery through SMTP.
 
 ## Project structure
 
@@ -15,8 +15,10 @@ backend/
   utils/
 frontend/
   index.html
-  vite.config.js
-  src/
+  script.js
+  styles.css
+  assets/
+  vendor/
 public/
 ```
 
@@ -44,14 +46,10 @@ CONTACT_RATE_LIMIT_MAX=5
 
 ## Scripts
 
-- `npm run dev` starts the Vite client and Express server together.
-- `npm run dev:client` starts only the frontend on port `5173`.
-- `npm run dev:server` starts only the backend on port `3000`.
-- `npm run lint` runs ESLint across frontend and backend source files.
-- `npm run build` builds the frontend into `dist/client`.
-- `npm run verify` runs linting and a production build.
-- `npm run start` serves the production backend.
-- `npm run preview` builds the frontend and starts the backend.
+- `npm run dev` starts the Express server in watch mode on port `3000`.
+- `npm run lint` runs ESLint across the browser script and backend source files.
+- `npm run verify` runs linting.
+- `npm run start` serves the production backend and static frontend.
 
 ## API
 
@@ -86,4 +84,5 @@ Returns success or validation errors while keeping the response shape consistent
 1. Install dependencies with `npm install`.
 2. Create `.env` from `.env.example`, then paste your Gmail app password into `SMTP_PASS`.
 3. Run `npm run dev`.
-4. Before shipping changes, run `npm run verify`.
+4. Open `http://localhost:3000`.
+5. Before shipping changes, run `npm run verify`.
