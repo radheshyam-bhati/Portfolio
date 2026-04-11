@@ -648,16 +648,22 @@ function initContactForm() {
     setStatus("loading", "Sending your message…");
 
     try {
-      const response = await fetch("/api/contact", {
+      const response = await fetch("https://formsubmit.co/ajax/radheshyambhati7451@gmail.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          name: payload.name,
+          email: payload.email,
+          message: payload.message,
+          _subject: `New portfolio contact from ${payload.name}`
+        }),
       });
 
       const data = await response.json().catch(() => ({
-        ok: false,
+        success: false,
         message: "Unexpected server response.",
       }));
 
