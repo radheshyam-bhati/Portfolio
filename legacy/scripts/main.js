@@ -32,10 +32,7 @@ function getSubmitText(state = "idle") {
     return "Message Sent!";
   }
 
-  return `
-    Send Message
-    ${sendIcon}
-  `;
+  return "Send Message";
 }
 
 function makeScroller() {
@@ -603,7 +600,12 @@ function setupContact() {
     btn.classList.toggle("is-loading", isSubmitting);
     const nextState =
       state === "success" ? "success" : isSubmitting ? "loading" : "idle";
-    label.innerHTML = getSubmitText(nextState);
+
+    label.textContent = getSubmitText(nextState);
+
+    if (nextState === "idle") {
+      label.insertAdjacentHTML("beforeend", sendIcon);
+    }
   }
 
   fields.forEach((input) => {
