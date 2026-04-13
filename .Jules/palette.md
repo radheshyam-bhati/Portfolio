@@ -1,0 +1,3 @@
+## 2024-04-13 - [Accessibility] Added ARIA Labels to Icon-Only Links in Featured Projects
+**Learning:** External links in `src/components/Projects.jsx` (`Github` and `ExternalLink` icons) were missing `aria-label` attributes, creating an accessibility issue for screen readers as they wouldn't have meaningful context of the links' destinations or what the icons represent.
+**Action:** When adding icon-only interactive elements (like anchor tags or buttons containing only Lucide React icons), always include descriptive `aria-label` attributes dynamically (e.g., ``aria-label={`View ${project.title} on GitHub`}``) to ensure comprehensive screen reader support.
