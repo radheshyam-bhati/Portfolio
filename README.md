@@ -91,10 +91,10 @@ npm run preview
 
 ```json
 {
-  "name": "Jane Doe",
-  "email": "jane@example.com",
+  "name": "Radheshyam Bhati",
+  "email": "radheshyam@example.com",
   "message": "I would like to discuss an internship opportunity.",
-  "_subject": "New portfolio contact from Jane Doe"
+  "_subject": "New portfolio contact from Radheshyam"
 }
 ```
 
