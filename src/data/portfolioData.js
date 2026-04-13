@@ -8,7 +8,7 @@ export const portfolioData = {
       "I'm Radheshyam — a CS student who spent two years grinding JEE prep, not just to crack an exam, but because I genuinely love how problems work. That obsession with problem-solving never left, it just shifted to code.",
       "I build things. Not for the resume, but because sitting down with a blank editor and ending up with something that works is one of the best feelings I know. I'm deep into AI, full-stack dev, and figuring out how to make software that actually matters."
     ],
-    resumeLink: "/docs/Resume.pdf",
+    resumeLink: import.meta.env.BASE_URL + "docs/Resume.pdf",
     email: "radheshyambhati747@gmail.com",
     linkedin: "https://www.linkedin.com/in/radheshyam-bhati/",
     github: "https://github.com/radheshyam-cod"
@@ -84,7 +84,7 @@ export const portfolioData = {
       issuer: "DevTown (GDG VIT-AP)",
       date: "Feb 2026",
       color: "#ef4444",
-      link: "/certificates/operating-systems-bootcamp-devtown-gdg-vit-ap.pdf"
+      link: import.meta.env.BASE_URL + "certificates/operating-systems-bootcamp-devtown-gdg-vit-ap.pdf"
     },
     {
       id: "cyber-course",
@@ -92,7 +92,7 @@ export const portfolioData = {
       issuer: "Skill India (Tech Mahindra Foundation)",
       date: "Dec 2025",
       color: "#dc2626",
-      link: "/certificates/cybersecurity-job-simulation.pdf"
+      link: import.meta.env.BASE_URL + "certificates/cybersecurity-job-simulation.pdf"
     },
     {
       id: "yophoria",
@@ -100,7 +100,7 @@ export const portfolioData = {
       issuer: "YoLearn.ai",
       date: "Oct 2025",
       color: "#fb7185",
-      link: "/certificates/yophoria-innovation-challenge-2025-yolearn-ai.pdf"
+      link: import.meta.env.BASE_URL + "certificates/yophoria-innovation-challenge-2025-yolearn-ai.pdf"
     }
   ]
 };

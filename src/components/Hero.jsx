@@ -107,7 +107,7 @@ const Hero = () => {
         <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', background: 'linear-gradient(to right, rgba(239, 68, 68, 0.3), rgba(248, 113, 113, 0.1))', opacity: 0.5, filter: 'blur(10px)' }} />
         <div style={{ padding: '6px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', borderRadius: '50%', position: 'relative', zIndex: 1, boxShadow: '0 0 30px rgba(239, 68, 68, 0.3)' }}>
           <img 
-            src="/images/profile.png" 
+            src={`${import.meta.env.BASE_URL}images/profile.png`} 
             alt={portfolioData.personalInfo.name} 
             style={{ width: '130px', height: '130px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #050505' }} 
           />

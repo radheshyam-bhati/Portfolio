@@ -66,7 +66,7 @@ const Navbar = () => {
           </ul>
 
           <div className="nav-actions">
-            <a href="/docs/Resume.pdf" target="_blank" rel="noreferrer" className="btn-primary desktop-only" style={{ padding: '8px 20px', fontSize: '0.9rem', borderRadius: '10px' }}>
+            <a href={`${import.meta.env.BASE_URL}docs/Resume.pdf`} target="_blank" rel="noreferrer" className="btn-primary desktop-only" style={{ padding: '8px 20px', fontSize: '0.9rem', borderRadius: '10px' }}>
               Resume
             </a>
             
@@ -101,7 +101,7 @@ const Navbar = () => {
                 </li>
               ))}
               <li>
-                <a href="/docs/Resume.pdf" target="_blank" rel="noreferrer" className="btn-primary" style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }} onClick={() => setIsOpen(false)}>
+                <a href={`${import.meta.env.BASE_URL}docs/Resume.pdf`} target="_blank" rel="noreferrer" className="btn-primary" style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }} onClick={() => setIsOpen(false)}>
                   Resume
                 </a>
               </li>
