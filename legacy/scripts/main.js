@@ -3,7 +3,7 @@
 const gsap = window.gsap ?? null;
 const Lenis = window.Lenis ?? null;
 
-const SEND_ICON_MARKUP = `
+const sendIcon = `
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="16"
@@ -21,11 +21,9 @@ const SEND_ICON_MARKUP = `
   </svg>
 `;
 
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
+const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
 
-function getSubmitLabelMarkup(state = "idle") {
+function getSubmitText(state = "idle") {
   if (state === "loading") {
     return "Sending…";
   }
@@ -36,34 +34,33 @@ function getSubmitLabelMarkup(state = "idle") {
 
   return `
     Send Message
-    ${SEND_ICON_MARKUP}
+    ${sendIcon}
   `;
 }
 
-function fallbackScrollTo(target, offset = 0) {
-  const top =
-    typeof target === "number"
-      ? target
-      : target.getBoundingClientRect().top + window.scrollY + offset;
-
-  window.scrollTo({
-    top,
-    behavior: "smooth",
-  });
-}
-
-function initSmoothScroll() {
+function makeScroller() {
   if (!Lenis) {
     return {
       lenis: null,
       scrollTo(target, options = {}) {
-        fallbackScrollTo(target, options.offset ?? 0);
+        // keep plain smooth scroll working if Lenis doesn't load
+        const top =
+          typeof target === "number"
+            ? target
+            : target.getBoundingClientRect().top +
+              window.scrollY +
+              (options.offset ?? 0);
+
+        window.scrollTo({
+          top,
+          behavior: "smooth",
+        });
       },
       destroy() {},
     };
   }
 
-  const lenis = new Lenis({
+  const smooth = new Lenis({
     duration: 1.4,
     easing: (value) => Math.min(1, 1.001 - 2 ** (-10 * value)),
     orientation: "vertical",
@@ -73,140 +70,140 @@ function initSmoothScroll() {
     touchMultiplier: 1.8,
   });
 
-  let animationFrameId = 0;
+  let rafId = 0;
 
-  function frame(time) {
-    lenis.raf(time);
-    animationFrameId = window.requestAnimationFrame(frame);
-  }
+  const tick = (time) => {
+    smooth.raf(time);
+    rafId = window.requestAnimationFrame(tick);
+  };
 
-  animationFrameId = window.requestAnimationFrame(frame);
+  rafId = window.requestAnimationFrame(tick);
 
   return {
-    lenis,
+    lenis: smooth,
     scrollTo(target, options = {}) {
-      lenis.scrollTo(target, options);
+      smooth.scrollTo(target, options);
     },
     destroy() {
-      window.cancelAnimationFrame(animationFrameId);
-      lenis.destroy();
+      window.cancelAnimationFrame(rafId);
+      smooth.destroy();
     },
   };
 }
 
-function initHeader(scrollDriver) {
-  const headerShell = document.querySelector(".header-shell");
-  const menuButton = document.querySelector("[data-menu-button]");
+function wireHeader(scroll) {
+  const shell = document.querySelector(".header-shell");
+  const menuBtn = document.querySelector("[data-menu-button]");
   const mobileNav = document.querySelector(".mobile-nav");
-  const navLinks = [...document.querySelectorAll("[data-nav-link]")];
-  const scrollTopButton = document.querySelector("[data-scroll-top]");
-  const sections = navLinks
+  const links = [...document.querySelectorAll("[data-nav-link]")];
+  const topBtn = document.querySelector("[data-scroll-top]");
+  const sections = links
     .map((link) => document.querySelector(link.getAttribute("href")))
     .filter(Boolean);
 
-  let isMenuOpen = false;
-  let rafLocked = false;
+  let menuOpen = false;
+  let queued = false;
 
-  function setActiveLink(sectionId) {
-    navLinks.forEach((link) => {
-      const isActive = link.dataset.section === sectionId;
-      link.classList.toggle("is-active", isActive);
-    });
+  function paintActive(sectionId) {
+    for (const link of links) {
+      link.classList.toggle("is-active", link.dataset.section === sectionId);
+    }
   }
 
-  function toggleMenu(forceValue) {
-    if (!menuButton || !mobileNav) {
+  function setMenu(next) {
+    if (!menuBtn || !mobileNav) {
       return;
     }
 
-    isMenuOpen =
-      typeof forceValue === "boolean" ? forceValue : !isMenuOpen;
+    menuOpen = typeof next === "boolean" ? next : !menuOpen;
 
-    menuButton.setAttribute("aria-expanded", String(isMenuOpen));
-    menuButton.classList.toggle("is-open", isMenuOpen);
-    mobileNav.classList.toggle("is-open", isMenuOpen);
+    menuBtn.setAttribute("aria-expanded", String(menuOpen));
+    menuBtn.classList.toggle("is-open", menuOpen);
+    mobileNav.classList.toggle("is-open", menuOpen);
   }
 
-  function updateHeaderState() {
-    const scrollPosition = window.scrollY;
+  function syncHeader() {
+    const y = window.scrollY;
 
-    if (headerShell) {
-      headerShell.classList.toggle("is-scrolled", scrollPosition > 40);
+    if (shell) {
+      shell.classList.toggle("is-scrolled", y > 40);
     }
 
-    let activeSectionId = "";
-    const reversedSections = [...sections].reverse();
+    let current = "";
 
-    for (const section of reversedSections) {
-      if (window.scrollY >= section.offsetTop - 120) {
-        activeSectionId = section.id;
+    for (let i = sections.length - 1; i >= 0; i -= 1) {
+      const section = sections[i];
+
+      if (y >= section.offsetTop - 120) {
+        current = section.id;
         break;
       }
     }
 
-    setActiveLink(activeSectionId);
-    rafLocked = false;
+    paintActive(current);
+    queued = false;
   }
 
-  function requestHeaderUpdate() {
-    if (rafLocked) {
+  function queueHeader() {
+    // scroll can get chatty, so keep this on one rAF
+    if (queued) {
       return;
     }
 
-    rafLocked = true;
-    window.requestAnimationFrame(updateHeaderState);
+    queued = true;
+    window.requestAnimationFrame(syncHeader);
   }
 
-  navLinks.forEach((link) => {
+  links.forEach((link) => {
     link.addEventListener("click", (event) => {
-      const targetSelector = link.getAttribute("href");
+      const targetId = link.getAttribute("href");
 
-      if (!targetSelector?.startsWith("#")) {
+      if (!targetId?.startsWith("#")) {
         return;
       }
 
-      const target = document.querySelector(targetSelector);
+      const target = document.querySelector(targetId);
 
       if (!target) {
         return;
       }
 
       event.preventDefault();
-      toggleMenu(false);
-      scrollDriver.scrollTo(target, { offset: -96 });
+      setMenu(false);
+      scroll.scrollTo(target, { offset: -96 });
     });
   });
 
-  scrollTopButton?.addEventListener("click", () => {
-    scrollDriver.scrollTo(0);
+  topBtn?.addEventListener("click", () => {
+    scroll.scrollTo(0);
   });
 
-  menuButton?.addEventListener("click", () => {
-    toggleMenu();
+  menuBtn?.addEventListener("click", () => {
+    setMenu();
   });
 
-  window.addEventListener("scroll", requestHeaderUpdate, { passive: true });
-  window.addEventListener("resize", requestHeaderUpdate);
-  updateHeaderState();
+  window.addEventListener("scroll", queueHeader, { passive: true });
+  window.addEventListener("resize", queueHeader);
+  syncHeader();
 }
 
-function initRevealAnimations() {
+function setupReveals() {
   if (!gsap) {
     return;
   }
 
-  const revealItems = [...document.querySelectorAll("[data-reveal]")];
-  const observer = new IntersectionObserver(
+  const items = [...document.querySelectorAll("[data-reveal]")];
+  const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) {
           return;
         }
 
-        const element = entry.target;
-        const delay = Number(element.dataset.delay || 0);
+        const el = entry.target;
+        const delay = Number(el.dataset.delay || 0);
 
-        gsap.to(element, {
+        gsap.to(el, {
           autoAlpha: 1,
           x: 0,
           y: 0,
@@ -217,7 +214,7 @@ function initRevealAnimations() {
           clearProps: "transform",
         });
 
-        observer.unobserve(element);
+        io.unobserve(el);
       });
     },
     {
@@ -226,71 +223,72 @@ function initRevealAnimations() {
     },
   );
 
-  revealItems.forEach((item) => {
-    const direction = item.dataset.reveal || "up";
-    const fromState =
-      direction === "left"
-        ? { x: -24, y: 0 }
-        : direction === "right"
-          ? { x: 24, y: 0 }
-          : { x: 0, y: 48 };
+  items.forEach((item) => {
+    let from = { x: 0, y: 48 };
+
+    if (item.dataset.reveal === "left") {
+      from = { x: -24, y: 0 };
+    } else if (item.dataset.reveal === "right") {
+      from = { x: 24, y: 0 };
+    }
 
     gsap.set(item, {
       autoAlpha: 0,
-      x: fromState.x,
-      y: fromState.y,
+      x: from.x,
+      y: from.y,
       filter: "blur(8px)",
     });
 
-    observer.observe(item);
+    io.observe(item);
   });
 }
 
-function initTextReveal() {
+function setupTextReveal() {
   if (!gsap) {
     return;
   }
 
-  const revealNodes = [...document.querySelectorAll("[data-text-reveal]")];
+  const nodes = Array.from(document.querySelectorAll("[data-text-reveal]"));
 
-  revealNodes.forEach((node) => {
+  nodes.forEach((node) => {
     const text = node.textContent || "";
     const mode = node.dataset.mode || "chars";
     const delay = Number(node.dataset.delay || 0);
     const stagger = Number(node.dataset.stagger || 0.03);
-    const shouldBlur = node.dataset.blur !== "false";
-    const items = mode === "words" ? text.split(" ") : [...text];
+    const blur = node.dataset.blur !== "false";
+    const bits = mode === "words" ? text.split(" ") : [...text];
 
     node.textContent = "";
     node.style.perspective = "600px";
 
-    const fragments = items.map((item, index) => {
+    const spans = bits.map((bit, index) => {
       const span = document.createElement("span");
       span.className = "inline-block";
       span.style.transformOrigin = "bottom center";
+      // nbsp keeps the stagger from collapsing spaces.
       span.textContent =
         mode === "words"
-          ? `${item}${index < items.length - 1 ? "\u00A0" : ""}`
-          : item === " "
+          ? `${bit}${index < bits.length - 1 ? "\u00A0" : ""}`
+          : bit === " "
             ? "\u00A0"
-            : item;
+            : bit;
       node.append(span);
       return span;
     });
 
     gsap.fromTo(
-      fragments,
+      spans,
       {
         autoAlpha: 0,
         y: 30,
         rotateX: 20,
-        filter: shouldBlur ? "blur(12px)" : "none",
+        filter: blur ? "blur(12px)" : "none",
       },
       {
         autoAlpha: 1,
         y: 0,
         rotateX: 0,
-        filter: shouldBlur ? "blur(0px)" : "none",
+        filter: blur ? "blur(0px)" : "none",
         duration: 0.9,
         ease: "back.out(1.35)",
         stagger,
@@ -300,52 +298,52 @@ function initTextReveal() {
   });
 }
 
-function initHeroParallax() {
+function setupHero() {
   if (!gsap) {
     return;
   }
 
-  const heroSection = document.querySelector("[data-hero]");
-  const heroContent = document.querySelector("[data-hero-content]");
-  const heroOrbs = document.querySelector("[data-hero-orbs]");
+  const section = document.querySelector("[data-hero]");
+  const content = document.querySelector("[data-hero-content]");
+  const orbs = document.querySelector("[data-hero-orbs]");
 
-  if (!heroSection || !heroContent || !heroOrbs) {
+  if (!section || !content || !orbs) {
     return;
   }
 
-  let ticking = false;
+  let busy = false;
 
-  function updateParallax() {
-    const rect = heroSection.getBoundingClientRect();
-    const totalScrollable = Math.max(rect.height - window.innerHeight, 1);
-    const progress = clamp(-rect.top / totalScrollable, 0, 1);
+  function paintHero() {
+    const box = section.getBoundingClientRect();
+    const maxScroll = Math.max(box.height - window.innerHeight, 1);
+    const progress = clamp(-box.top / maxScroll, 0, 1);
 
-    gsap.set(heroContent, {
+    gsap.set(content, {
       yPercent: progress * 25,
       opacity: 1 - clamp(progress / 0.6, 0, 1),
     });
-    gsap.set(heroOrbs, {
+    gsap.set(orbs, {
       yPercent: progress * -15,
     });
 
-    ticking = false;
+    busy = false;
   }
 
-  function requestUpdate() {
-    if (ticking) {
+  function queueHero() {
+    if (busy) {
       return;
     }
 
-    ticking = true;
-    window.requestAnimationFrame(updateParallax);
+    busy = true;
+    window.requestAnimationFrame(paintHero);
   }
 
-  window.addEventListener("scroll", requestUpdate, { passive: true });
-  window.addEventListener("resize", requestUpdate);
-  updateParallax();
+  window.addEventListener("scroll", queueHero, { passive: true });
+  window.addEventListener("resize", queueHero);
+  paintHero();
 }
 
-function initCursor() {
+function setupCursor() {
   if (!gsap || window.matchMedia("(pointer: coarse)").matches) {
     return;
   }
@@ -374,19 +372,16 @@ function initCursor() {
     ease: "power3.out",
   });
 
-  function showCursor() {
-    document.body.classList.add("cursor-visible");
-  }
-
-  function hideCursor() {
+  const showCursor = () => document.body.classList.add("cursor-visible");
+  const hideCursor = () => {
     document.body.classList.remove(
       "cursor-visible",
       "cursor-pointer",
       "cursor-clicking",
     );
-  }
+  };
 
-  function onMove(event) {
+  function handleMove(event) {
     showCursor();
     ringX(event.clientX);
     ringY(event.clientY);
@@ -394,7 +389,7 @@ function initCursor() {
     dotY(event.clientY);
   }
 
-  function onOver(event) {
+  function handleHover(event) {
     const target = event.target;
 
     if (!(target instanceof HTMLElement)) {
@@ -408,8 +403,8 @@ function initCursor() {
     document.body.classList.toggle("cursor-pointer", isInteractive);
   }
 
-  window.addEventListener("mousemove", onMove);
-  window.addEventListener("mouseover", onOver);
+  window.addEventListener("mousemove", handleMove);
+  window.addEventListener("mouseover", handleHover);
   window.addEventListener("mousedown", () => {
     document.body.classList.add("cursor-clicking");
   });
@@ -420,20 +415,20 @@ function initCursor() {
   document.addEventListener("mouseenter", showCursor);
 }
 
-function initMagneticElements() {
+function setupMagnet() {
   if (!gsap) {
     return;
   }
 
-  const magneticElements = [...document.querySelectorAll("[data-magnetic]")];
+  const items = document.querySelectorAll("[data-magnetic]");
 
-  magneticElements.forEach((element) => {
-    element.addEventListener("mousemove", (event) => {
-      const rect = element.getBoundingClientRect();
-      const offsetX = event.clientX - (rect.left + rect.width / 2);
-      const offsetY = event.clientY - (rect.top + rect.height / 2);
+  for (const item of items) {
+    item.addEventListener("mousemove", (event) => {
+      const box = item.getBoundingClientRect();
+      const offsetX = event.clientX - (box.left + box.width / 2);
+      const offsetY = event.clientY - (box.top + box.height / 2);
 
-      gsap.to(element, {
+      gsap.to(item, {
         x: offsetX * 0.2,
         y: offsetY * 0.2,
         duration: 0.35,
@@ -441,18 +436,18 @@ function initMagneticElements() {
       });
     });
 
-    element.addEventListener("mouseleave", () => {
-      gsap.to(element, {
+    item.addEventListener("mouseleave", () => {
+      gsap.to(item, {
         x: 0,
         y: 0,
         duration: 0.4,
         ease: "elastic.out(1, 0.4)",
       });
     });
-  });
+  }
 }
 
-function initProjectCards() {
+function setupCards() {
   if (!gsap) {
     return;
   }
@@ -462,12 +457,10 @@ function initProjectCards() {
   cards.forEach((card) => {
     const glow = card.querySelector(".project-card-glow");
     const title = card.querySelector(".project-card-title");
-    const border = card.querySelector(".project-card-border");
+    const line = card.querySelector(".project-card-border");
     const accent = card.dataset.accent || "#ef4444";
-    const accentBorder =
-      card.dataset.accentBorder || "rgba(239,68,68,0.18)";
-    const accentShadow =
-      card.dataset.accentShadow || "rgba(239,68,68,0.12)";
+    const accentBorder = card.dataset.accentBorder || "rgba(239,68,68,0.18)";
+    const accentShadow = card.dataset.accentShadow || "rgba(239,68,68,0.12)";
     const accentGlow = card.dataset.accentGlow || "rgba(239,68,68,0.16)";
 
     card.addEventListener("mouseenter", () => {
@@ -479,7 +472,7 @@ function initProjectCards() {
         textShadow: `0 0 20px ${accentShadow}`,
         duration: 0.3,
       });
-      gsap.to(border, {
+      gsap.to(line, {
         opacity: 1,
         duration: 0.3,
       });
@@ -501,7 +494,9 @@ function initProjectCards() {
 
       if (glow) {
         glow.style.opacity = "1";
-        glow.style.background = `radial-gradient(circle at ${glowX}% ${glowY}%, ${accentGlow} 0%, transparent 60%)`;
+        glow.style.background =
+          `radial-gradient(circle at ${glowX}% ${glowY}%, ` +
+          `${accentGlow} 0%, transparent 60%)`;
       }
     });
 
@@ -519,7 +514,7 @@ function initProjectCards() {
         duration: 0.3,
       });
 
-      gsap.to(border, {
+      gsap.to(line, {
         opacity: 0,
         duration: 0.3,
       });
@@ -532,18 +527,20 @@ function initProjectCards() {
   });
 }
 
-function initContactForm() {
+function setupContact() {
   const form = document.querySelector("[data-contact-form]");
   const status = document.querySelector("[data-contact-status]");
-  const submitButton = document.querySelector(".contact-submit-button");
-  const submitLabel = document.querySelector("[data-submit-label]");
+  const btn = document.querySelector(".contact-submit-button");
+  const label = document.querySelector("[data-submit-label]");
   const errorNodes = [...document.querySelectorAll("[data-field-error]")];
 
-  if (!form || !status || !submitButton || !submitLabel) {
+  if (!form || !status || !btn || !label) {
     return;
   }
 
-  function setStatus(state, message) {
+  const fields = [...form.querySelectorAll(".field-input")];
+
+  function showStatus(state, message) {
     status.textContent = message;
     status.dataset.state = state;
     status.classList.toggle("is-visible", Boolean(message));
@@ -554,26 +551,27 @@ function initContactForm() {
       node.textContent = "";
     });
 
-    [...form.querySelectorAll(".field-input")].forEach((input) => {
+    fields.forEach((input) => {
       input.classList.remove("is-error");
     });
   }
 
-  function applyErrors(errors) {
-    Object.entries(errors).forEach(([field, message]) => {
+  function paintErrors(errors) {
+    Object.entries(errors).forEach(([field, text]) => {
       const input = form.querySelector(`[name="${field}"]`);
       const errorNode = form.querySelector(`[data-field-error="${field}"]`);
 
       input?.classList.add("is-error");
 
       if (errorNode) {
-        errorNode.textContent = message;
+        errorNode.textContent = text;
       }
     });
   }
 
-  function validatePayload({ name, email, message }) {
+  function validate(values) {
     const errors = {};
+    const { name, email, message } = values;
 
     if (!name || name.trim().length < 2 || name.trim().length > 80) {
       errors.name =
@@ -600,20 +598,18 @@ function initContactForm() {
     return errors;
   }
 
-  function setSubmitting(isSubmitting, state = "default") {
-    submitButton.disabled = isSubmitting;
-    submitButton.classList.toggle("is-loading", isSubmitting);
+  function setBusy(isSubmitting, state = "default") {
+    btn.disabled = isSubmitting;
+    btn.classList.toggle("is-loading", isSubmitting);
     const nextState =
       state === "success" ? "success" : isSubmitting ? "loading" : "idle";
-    submitLabel.innerHTML = getSubmitLabelMarkup(nextState);
+    label.innerHTML = getSubmitText(nextState);
   }
 
-  [...form.querySelectorAll(".field-input")].forEach((input) => {
+  fields.forEach((input) => {
     input.addEventListener("input", () => {
       input.classList.remove("is-error");
-      const errorNode = form.querySelector(
-        `[data-field-error="${input.name}"]`,
-      );
+      const errorNode = form.querySelector(`[data-field-error="${input.name}"]`);
 
       if (errorNode) {
         errorNode.textContent = "";
@@ -624,7 +620,7 @@ function initContactForm() {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     clearErrors();
-    setStatus("", "");
+    showStatus("", "");
 
     const formData = new FormData(form);
     const payload = {
@@ -633,35 +629,39 @@ function initContactForm() {
       message: String(formData.get("message") || "").trim(),
     };
 
-    const clientErrors = validatePayload(payload);
+    const clientErrors = validate(payload);
 
     if (Object.keys(clientErrors).length > 0) {
-      applyErrors(clientErrors);
-      setStatus(
+      paintErrors(clientErrors);
+      showStatus(
         "error",
         "Please correct the highlighted fields and try again.",
       );
       return;
     }
 
-    setSubmitting(true);
-    setStatus("loading", "Sending your message…");
+    setBusy(true);
+    showStatus("loading", "Sending your message…");
 
     try {
-      const response = await fetch("https://formsubmit.co/ajax/radheshyambhati7451@gmail.com", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
+      const response = await fetch(
+        "https://formsubmit.co/ajax/radheshyambhati7451@gmail.com",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            name: payload.name,
+            email: payload.email,
+            message: payload.message,
+            _subject: `New portfolio contact from ${payload.name}`,
+          }),
         },
-        body: JSON.stringify({
-          name: payload.name,
-          email: payload.email,
-          message: payload.message,
-          _subject: `New portfolio contact from ${payload.name}`
-        }),
-      });
+      );
 
+      // FormSubmit sometimes gives back junk when it isn't happy.
       const data = await response.json().catch(() => ({
         success: false,
         message: "Unexpected server response.",
@@ -669,56 +669,56 @@ function initContactForm() {
 
       if (!response.ok) {
         if (data.errors) {
-          applyErrors(data.errors);
+          paintErrors(data.errors);
         }
 
-        setStatus("error", data.message || "The message could not be sent.");
-        setSubmitting(false);
+        showStatus("error", data.message || "The message could not be sent.");
+        setBusy(false);
         return;
       }
 
       form.reset();
       clearErrors();
-      setStatus(
+      showStatus(
         "success",
         data.message ||
           "Thanks for reaching out. Your message has been sent successfully.",
       );
-      setSubmitting(false, "success");
+      setBusy(false, "success");
 
       window.setTimeout(() => {
-        setSubmitting(false);
+        setBusy(false);
       }, 4000);
     } catch (error) {
       console.error("Failed to submit contact form", error);
-      setStatus(
+      showStatus(
         "error",
         "The message could not be sent right now. Please try again later.",
       );
-      setSubmitting(false);
+      setBusy(false);
     }
   });
 }
 
-function initPortfolioPage() {
-  const smoothScroll = initSmoothScroll();
+function bootPage() {
+  const scroll = makeScroller();
 
-  initHeader(smoothScroll);
-  initTextReveal();
-  initRevealAnimations();
-  initHeroParallax();
-  initCursor();
-  initMagneticElements();
-  initProjectCards();
-  initContactForm();
+  wireHeader(scroll);
+  setupTextReveal();
+  setupReveals();
+  setupHero();
+  setupCursor();
+  setupMagnet();
+  setupCards();
+  setupContact();
 
-  return smoothScroll;
+  return scroll;
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initPortfolioPage, {
+  document.addEventListener("DOMContentLoaded", bootPage, {
     once: true,
   });
 } else {
-  initPortfolioPage();
+  bootPage();
 }

@@ -1,70 +1,109 @@
-# Radheshyam Bhati - Personal Portfolio
+# Project Title
+> A motion-rich React/Vite portfolio for showcasing projects, education, certifications, and contact details.
 
-A cyberpunk-themed, high-performance static portfolio website built with HTML, CSS (Tailwind CSS), and JavaScript. 
+![Badges: build-passing, license-private, version-0.0.0](https://img.shields.io/badge/build-passing-22c55e) ![Version](https://img.shields.io/badge/version-0.0.0-2563eb) ![License](https://img.shields.io/badge/license-private-64748b)
 
-## 🚀 Live Demo
+## Table of Contents
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage / Quick Start](#usage--quick-start)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+- [API Reference](#api-reference)
+- [Contributing](#contributing)
+- [License](#license)
 
-[https://radheshyam-cod.github.io/radheshyam-portfolio/](https://radheshyam-cod.github.io/radheshyam-portfolio/) *(Subject to your actual GitHub Pages URL)*
+## Features
+- Animated hero, skills, projects, education, certifications, and contact sections.
+- Deterministic floating particle effects for stable rendering across re-renders.
+- Reduced-motion friendly preloader and scroll progress behavior.
+- Contact form integration through FormSubmit with client-side validation and request cleanup.
+- Responsive navigation and custom cursor interactions for fine-pointer devices.
 
-## 🛠 Features & Technology Stack
+## Tech Stack
+- React 19
+- Vite 6
+- Framer Motion
+- Lucide React
+- CSS
 
-- **Frontend Core**: Vanilla HTML5, CSS3, ES6 JavaScript.
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) (Compiled into `styles.css`).
-- **Animations**: [GSAP](https://gsap.com/) for scroll-triggered reveals, 3D hover effects, and parallax micro-interactions.
-- **Smooth Scrolling**: [Lenis](https://lenis.studiofreight.com/) for seamless vertical scrolling.
-- **Contact Form**: Powered by [FormSubmit](https://formsubmit.co/) (No backend required!).
-- **Hosting**: Statically hosted on GitHub Pages for zero-latency loading.
+## Prerequisites
+- Node.js 20+ recommended
+- npm 10+ recommended
 
-## 📂 Project Structure
+## Installation
+```bash
+git clone https://github.com/radheshyam-cod/radheshyam-portfolio.git
+cd radheshyam-portfolio
+npm install
+```
 
+## Usage / Quick Start
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+## Project Structure
 ```text
 .
-├── index.html       # Main portfolio single page
-├── script.js        # GSAP animations, Lenis setup, and Form logic
-├── styles.css       # Compiled Tailwind CSS and custom animations
-├── image.png        # Profile image used in the Hero section
-├── Resume.pdf       # Downloadable resume
-├── assets/          # Local font files (Space Grotesk)
-├── vendor/          # Local GSAP & Lenis scripts
-└── certificates/    # PDF certificates
+├── index.html
+├── package.json
+├── public
+│   ├── certificates
+│   ├── docs
+│   ├── fonts
+│   └── images
+├── src
+│   ├── components
+│   ├── data
+│   ├── utils
+│   ├── App.jsx
+│   ├── index.css
+│   └── main.jsx
+├── legacy
+├── vendor
+└── vite.config.js
 ```
 
-## 💻 Local Development
+## Environment Variables
+| Variable | Required | Description | Default |
+| --- | --- | --- | --- |
+| `VITE_FORMSUBMIT_ENDPOINT` | No | Full FormSubmit endpoint used by the contact form. | `https://formsubmit.co/ajax/<portfolio email>` |
 
-Since the portfolio was recently migrated to be entirely static, there's no need for an `npm` build step, Node.js installation, or an Express backend server.
+## API Reference
+### `POST` FormSubmit endpoint
+- Purpose: sends portfolio contact form submissions to the configured inbox.
+- Request body:
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/radheshyam-cod/radheshyam-portfolio.git
-   cd radheshyam-portfolio
-   ```
-
-2. **Run locally:**
-   You can serve the directory using any static file server. For example:
-   
-   Using Python:
-   ```bash
-   python3 -m http.server
-   ```
-   *Or* using Node.js/npx:
-   ```bash
-   npx serve .
-   ```
-   *Or* simply use the **Live Server** extension in VS Code.
-
-3. Open `http://localhost:8000` (or the port specified by your server) in your browser.
-
-## ✉️ Contact Form Configuration
-
-The contact form uses [FormSubmit](https://formsubmit.co/) to forward messages directly to email without requiring a custom backend server.
-
-To modify the recipient, change the email address in `script.js` located in the `fetch` request inside the `initContactForm` function:
-
-```javascript
-// script.js
-const response = await fetch("https://formsubmit.co/ajax/your-email@example.com", {
-  // ...
-});
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "message": "I would like to discuss an internship opportunity.",
+  "_subject": "New portfolio contact from Jane Doe"
+}
 ```
 
-*Note: You must activate the FormSubmit endpoint by submitting the form once and confirming your email address via the link FormSubmit sends you.*
+- Response: JSON returned by FormSubmit.
+
+## Contributing
+1. Create a feature branch.
+2. Make focused changes with a passing production build.
+3. Open a pull request with screenshots or notes for UI-affecting updates.
+
+## License
+Private project. Do not redistribute without permission.
