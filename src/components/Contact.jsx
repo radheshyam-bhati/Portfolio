@@ -8,6 +8,7 @@ import {
   getContactFormEndpoint,
   validateContactForm,
 } from '../utils/contactForm';
+import './Contact.css';
 
 const INITIAL_FORM_DATA = { name: '', email: '', message: '' };
 const INITIAL_STATUS = { type: '', message: '' };
@@ -27,7 +28,7 @@ const FloatingInput = ({
   const inputProps = isTextArea ? { rows: 5 } : { type };
 
   return (
-    <div style={{ position: 'relative', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+    <div className="floating-input-container">
       <InputComponent
         id={id}
         name={name}
@@ -36,33 +37,12 @@ const FloatingInput = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         {...inputProps}
-        style={{
-          width: '100%',
-          background: 'rgba(0,0,0,0.5)',
-          border: `1px solid ${active ? 'var(--color-neon-blue)' : 'rgba(255,255,255,0.1)'}`,
-          padding: isTextArea ? '1.5rem 1rem 1rem' : '1.5rem 1rem 0.5rem',
-          borderRadius: '12px',
-          color: 'white',
-          fontFamily: 'inherit',
-          outline: 'none',
-          resize: isTextArea ? 'vertical' : 'none',
-          transition: 'border-color 0.3s',
-        }}
+        className={`floating-input-field ${isTextArea ? 'is-textarea' : ''} ${active ? 'is-active' : ''}`}
         required
       />
       <label
         htmlFor={id}
-        style={{
-          position: 'absolute',
-          left: '1rem',
-          top: active ? '0.5rem' : isTextArea ? '1rem' : '1.1rem',
-          transform: active ? 'translateY(0) scale(0.75)' : 'translateY(0) scale(1)',
-          transformOrigin: 'top left',
-          color: active ? 'var(--color-neon-blue)' : 'var(--color-text-muted)',
-          transition: 'all 0.2s ease',
-          pointerEvents: 'none',
-          fontWeight: active ? 600 : 400,
-        }}
+        className={`floating-input-label ${isTextArea ? 'is-textarea' : ''} ${active ? 'is-active' : ''}`}
       >
         {label}
       </label>
@@ -165,78 +145,70 @@ const Contact = () => {
     <section id="contact" className="section">
       <SectionHeading number="06." title="Let's Connect" />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', alignItems: 'start' }}>
+      <div className="contact-grid">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
         >
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem', marginBottom: '2.5rem', lineHeight: 1.8 }}>
-            I'm looking for internships and builder-focused opportunities where I can contribute across <span style={{ color: 'white', fontWeight: 500 }}>AI, cybersecurity, full-stack development, and product execution.</span>
+          <p className="contact-description">
+            I'm looking for internships and builder-focused opportunities where I can contribute across <span>AI, cybersecurity, full-stack development, and product execution.</span>
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <a href={`mailto:${contactEmail}`} style={{ display: 'flex', alignItems: 'center', gap: '1rem', textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+          <div className="contact-links">
+            <a href={`mailto:${contactEmail}`} className="contact-link-item">
+              <div className="contact-icon-wrapper contact-icon-red">
                 <Mail size={20} />
               </div>
               <div>
-                <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Email</div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 500 }}>{contactEmail}</div>
+                <div className="contact-info-label">Email</div>
+                <div className="contact-info-value">{contactEmail}</div>
               </div>
             </a>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(251, 113, 133, 0.1)', border: '1px solid rgba(251, 113, 133, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fb7185' }}>
+            <div className="contact-link-item">
+              <div className="contact-icon-wrapper contact-icon-pink">
                 <MapPin size={20} />
               </div>
               <div>
-                <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>Location</div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 500 }}>{location}</div>
+                <div className="contact-info-label">Location</div>
+                <div className="contact-info-value">{location}</div>
               </div>
             </div>
 
-            <a href={linkedin} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '1rem', textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+            <a href={linkedin} target="_blank" rel="noreferrer" className="contact-link-item">
+              <div className="contact-icon-wrapper contact-icon-red">
                 <Linkedin size={20} />
               </div>
               <div>
-                <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>LinkedIn</div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 500 }}>linkedin.com/in/radheshyam-bhati</div>
+                <div className="contact-info-label">LinkedIn</div>
+                <div className="contact-info-value">linkedin.com/in/radheshyam-bhati</div>
               </div>
             </a>
 
-            <a href={github} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '1rem', textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626' }}>
+            <a href={github} target="_blank" rel="noreferrer" className="contact-link-item">
+              <div className="contact-icon-wrapper contact-icon-darkred">
                 <Github size={20} />
               </div>
               <div>
-                <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>GitHub</div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 500 }}>github.com/radheshyam-cod</div>
+                <div className="contact-info-label">GitHub</div>
+                <div className="contact-info-value">github.com/radheshyam-cod</div>
               </div>
             </a>
           </div>
         </motion.div>
 
         <motion.div
-          className="glass-panel"
+          className="glass-panel contact-form-panel"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          style={{ padding: '2rem' }}
         >
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form onSubmit={handleSubmit} className="contact-form">
             {status.message && (
-              <div style={{ 
-                padding: '1rem', 
-                borderRadius: '8px', 
-                fontSize: '0.9rem',
-                backgroundColor: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : status.type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                color: status.type === 'error' ? '#ef4444' : status.type === 'success' ? '#22c55e' : 'white',
-                border: `1px solid ${status.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : status.type === 'success' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255,255,255,0.1)'}`
-              }}>
+              <div className={`contact-status-message ${status.type === 'error' ? 'contact-status-error' : status.type === 'success' ? 'contact-status-success' : 'contact-status-default'}`}>
                 {status.message}
               </div>
             )}
@@ -270,16 +242,7 @@ const Contact = () => {
             <button 
               type="submit" 
               disabled={buttonState !== 'idle'}
-              className="btn-primary" 
-              style={{ 
-                width: '100%', 
-                justifyContent: 'center', 
-                padding: '1rem', 
-                fontSize: '1rem', 
-                filter: buttonState !== 'idle' ? 'contrast(0.8) brightness(0.9)' : 'none', 
-                cursor: buttonState !== 'idle' ? 'not-allowed' : 'pointer',
-                height: '56px' 
-              }}
+              className="btn-primary contact-submit-btn"
             >
               <AnimatePresence mode="wait">
                 {buttonState === 'idle' && (
@@ -288,7 +251,7 @@ const Contact = () => {
                     initial={{ opacity: 0, y: 15 }} 
                     animate={{ opacity: 1, y: 0 }} 
                     exit={{ opacity: 0, y: -15 }} 
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    className="contact-btn-content"
                   >
                     Send Message <Send size={18} />
                   </motion.div>
@@ -299,7 +262,7 @@ const Contact = () => {
                     initial={{ opacity: 0, scale: 0.8 }} 
                     animate={{ opacity: 1, scale: 1 }} 
                     exit={{ opacity: 0, scale: 0.8 }} 
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    className="contact-btn-content"
                   >
                     <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
                       <Loader2 size={18} />
@@ -313,7 +276,7 @@ const Contact = () => {
                     initial={{ opacity: 0, scale: 0.8 }} 
                     animate={{ opacity: 1, scale: 1 }} 
                     exit={{ opacity: 0, scale: 0.8 }} 
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    className="contact-btn-content"
                   >
                     <Check size={18} /> Sent!
                   </motion.div>
