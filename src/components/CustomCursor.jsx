@@ -30,7 +30,9 @@ const CustomCursor = () => {
     const handlePointerMove = (event) => {
       cursorX.set(event.clientX);
       cursorY.set(event.clientY);
+    };
 
+    const handlePointerOver = (event) => {
       if (!(event.target instanceof Element)) {
         updateHoverState(false);
         return;
@@ -46,10 +48,12 @@ const CustomCursor = () => {
     };
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('pointerover', handlePointerOver, { passive: true });
     document.documentElement.addEventListener('mouseleave', handlePointerLeave);
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerover', handlePointerOver);
       document.documentElement.removeEventListener('mouseleave', handlePointerLeave);
     };
   }, [cursorX, cursorY]);
