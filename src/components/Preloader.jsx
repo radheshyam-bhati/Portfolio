@@ -1,15 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { createFloatingParticles } from '../utils/particles';
+import BackgroundParticles from './BackgroundParticles';
 
 const PRELOADER_NAME = 'Radheshyam';
 const PRELOADER_EXIT_DELAY_MS = 5500;
 const REDUCED_MOTION_EXIT_DELAY_MS = 150;
 
-const Preloader = ({ onComplete }) => {
+const Preloader = ({ onComplete, particles }) => {
   const shouldReduceMotion = useReducedMotion();
   const [typedName, setTypedName] = useState('');
-  const particles = useMemo(() => createFloatingParticles(), []);
 
   useEffect(() => {
     if (shouldReduceMotion) {
@@ -69,18 +68,6 @@ const Preloader = ({ onComplete }) => {
             position: relative;
             overflow: hidden;
             padding: 2rem;
-          }
-          .preloader-dot {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(220, 20, 20, 0.6);
-            animation: floatUp linear infinite;
-          }
-          @keyframes floatUp {
-            0%   { transform: translateY(100vh) scale(0); opacity: 0; }
-            10%  { opacity: 1; }
-            90%  { opacity: 0.8; }
-            100% { transform: translateY(-100px) scale(1.2); opacity: 0; }
           }
           .preloader-glow-ring {
             position: absolute;
@@ -194,20 +181,7 @@ const Preloader = ({ onComplete }) => {
       </style>
 
       <div className="preloader-screen">
-        {particles.map(p => (
-          <div 
-            key={p.id} 
-            className="preloader-dot" 
-            style={{
-              left: p.left,
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-              animationDuration: p.duration,
-              animationDelay: p.delay,
-              boxShadow: `0 0 ${p.size * 2}px rgba(200,0,0,0.5)`
-            }} 
-          />
-        ))}
+        <BackgroundParticles particles={particles} />
 
         <div className="preloader-glow-ring" style={{ width: '260px', height: '260px', animationDelay: '0s' }}></div>
         <div className="preloader-glow-ring" style={{ width: '420px', height: '420px', animationDelay: '0.6s' }}></div>

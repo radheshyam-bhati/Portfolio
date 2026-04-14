@@ -16,6 +16,7 @@ import Education from './components/Education';
 import Certifications from './components/Certifications';
 import Contact from './components/Contact';
 import Preloader from './components/Preloader';
+import BackgroundParticles from './components/BackgroundParticles';
 import { createFloatingParticles } from './utils/particles';
 
 function App() {
@@ -53,7 +54,13 @@ function App() {
   return (
     <div className="app-container">
       <AnimatePresence mode="wait">
-        {isLoading && <Preloader key="preloader" onComplete={handlePreloaderComplete} />}
+        {isLoading && (
+          <Preloader
+            key="preloader"
+            onComplete={handlePreloaderComplete}
+            particles={backgroundParticles}
+          />
+        )}
       </AnimatePresence>
 
       <CustomCursor />
@@ -73,20 +80,7 @@ function App() {
       />
 
       <div className="fixed-background">
-        {backgroundParticles.map((particle) => (
-          <div
-            key={particle.id}
-            className="bg-dot"
-            style={{
-              left: particle.left,
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-              animationDuration: particle.duration,
-              animationDelay: particle.delay,
-              boxShadow: `0 0 ${particle.size * 2}px rgba(200,0,0,0.5)`,
-            }}
-          />
-        ))}
+        <BackgroundParticles particles={backgroundParticles} />
       </div>
 
       <Navbar />
