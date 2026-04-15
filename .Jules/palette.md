@@ -1,0 +1,3 @@
+## 2025-02-23 - Accessibility of Icon-Only Card Links
+**Learning:** Icon-only anchor tags (like GitHub and ExternalLink icons in project cards) lack accessible names by default, rendering them unreadable to screen reader users and breaking keyboard navigation context. This pattern is common in card-based grid layouts.
+**Action:** Always provide explicit, descriptive `aria-label` attributes (e.g., `aria-label={"View " + project.title + " source code"}`) to all icon-only links to ensure full screen reader support and WCAG compliance.
