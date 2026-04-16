@@ -1,0 +1,4 @@
+## 2026-04-16 - [MEDIUM] Fix tabnabbing vulnerability in external links
+**Vulnerability:** External links (anchor tags) with `target="_blank"` were found lacking the `noopener` keyword in their `rel` attributes, only containing `noreferrer`. This exposes the application to potential reverse tabnabbing attacks, where the newly opened tab can manipulate the `window.opener` object to redirect the original page to a malicious site.
+**Learning:** React 19 / JSX requires explicit mitigation for `target="_blank"` links. Relying solely on `noreferrer` may be insufficient for older browsers or specific configurations where `noopener` is the primary defense against window manipulation.
+**Prevention:** All anchor tags opening in a new tab (`target="_blank"`) must explicitly include `rel="noopener noreferrer"` to guarantee robust protection across all user environments and browser versions.
