@@ -1,0 +1,3 @@
+## 2024-05-19 - Accessible Icon-Only Links in Lists
+**Learning:** When generating lists of items (like projects or cards) that contain icon-only actions, applying a generic `aria-label` (e.g., "View GitHub") makes it difficult for screen reader users to distinguish which item's action they are selecting. This is a common accessibility issue pattern in grid or list layouts.
+**Action:** Always interpolate unique identifiers (like the item's title) into the `aria-label` for map-generated icon-only links to ensure they remain distinguishable and context-aware (e.g., `aria-label={\`View \${project.title} on GitHub\`}`).
