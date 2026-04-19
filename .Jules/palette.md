@@ -1,0 +1,3 @@
+## 2026-04-19 - Dynamic ARIA Labels in Mapped Icon Links
+**Learning:** When rendering lists of icon-only links (like GitHub/Live Demo links on project cards), static `aria-label` attributes are insufficient as they cause repetitive and ambiguous announcements for screen reader users (e.g., hearing "GitHub repository" five times without knowing which project it belongs to).
+**Action:** Always use string interpolation to include the item's title or unique identifier in the `aria-label` of mapped interactive elements (e.g., `aria-label={\`${project.title} GitHub repository\`}`) to provide adequate context.
