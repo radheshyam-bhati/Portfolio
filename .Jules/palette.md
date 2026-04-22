@@ -1,0 +1,3 @@
+## 2026-04-22 - Dynamic ARIA Labels for Mapped Icon-Only Elements
+**Learning:** Screen reader users lose context when icon-only links (like GitHub/External Link icons) are rendered inside a loop (e.g., a mapped list of projects) without unique labels. A generic 'GitHub link' label is indistinguishable from others in the same loop.
+**Action:** When adding `aria-label` attributes to interactive elements rendered inside an array map, always interpolate a unique identifier (such as the item's title) into the label string (e.g., `aria-label={\`GitHub repository for ${project.title}\`}`) to provide precise context.
