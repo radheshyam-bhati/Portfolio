@@ -241,31 +241,22 @@ const Contact = () => {
               </div>
             )}
             
-            <FloatingInput 
-              id="contact-name"
-              label="Your Name" 
-              name="name" 
-              value={formData.name} 
-              onChange={handleChange} 
-            />
-            
-            <FloatingInput 
-              id="contact-email"
-              label="Email Address" 
-              name="email" 
-              type="email" 
-              value={formData.email} 
-              onChange={handleChange} 
-            />
-            
-            <FloatingInput 
-              id="contact-message"
-              label="Message" 
-              name="message" 
-              value={formData.message} 
-              onChange={handleChange} 
-              isTextArea 
-            />
+            {[
+              { id: 'contact-name', label: 'Your Name', name: 'name' },
+              { id: 'contact-email', label: 'Email Address', name: 'email', type: 'email' },
+              { id: 'contact-message', label: 'Message', name: 'message', isTextArea: true }
+            ].map((input) => (
+              <FloatingInput
+                key={input.id}
+                id={input.id}
+                label={input.label}
+                name={input.name}
+                type={input.type || 'text'}
+                value={formData[input.name]}
+                onChange={handleChange}
+                isTextArea={input.isTextArea}
+              />
+            ))}
 
             <button 
               type="submit" 
