@@ -10,7 +10,7 @@ import {
 } from '../utils/contactForm';
 
 const INITIAL_FORM_DATA = { name: '', email: '', message: '' };
-const INITIAL_STATUS = { type: '', message: '' };
+const INITIAL_STATUS = { type: 'idle', message: '' };
 
 const FloatingInput = ({
   id,
@@ -73,7 +73,6 @@ const FloatingInput = ({
 const Contact = () => {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [status, setStatus] = useState(INITIAL_STATUS);
-  const [buttonState, setButtonState] = useState('idle');
   const statusResetTimeoutRef = useRef(0);
   const submitAbortControllerRef = useRef(null);
 
@@ -103,7 +102,6 @@ const Contact = () => {
   const resetSuccessState = () => {
     window.clearTimeout(statusResetTimeoutRef.current);
     statusResetTimeoutRef.current = window.setTimeout(() => {
-      setButtonState('idle');
       setStatus(INITIAL_STATUS);
     }, 4000);
   };
@@ -121,8 +119,7 @@ const Contact = () => {
     submitAbortControllerRef.current?.abort();
     const abortController = new AbortController();
     submitAbortControllerRef.current = abortController;
-    setButtonState('submitting');
-    setStatus(INITIAL_STATUS);
+    setStatus({ type: 'submitting', message: '' });
 
     try {
       const response = await fetch(getContactFormEndpoint(contactEmail), {
@@ -142,7 +139,6 @@ const Contact = () => {
       }
 
       setFormData(INITIAL_FORM_DATA);
-      setButtonState('success');
       setStatus({ type: 'success', message: 'Thanks for reaching out! Your message has been sent.' });
 
       resetSuccessState();
@@ -155,7 +151,6 @@ const Contact = () => {
         type: 'error',
         message: error.message || 'The message could not be sent right now. Please try again later.',
       });
-      setButtonState('idle');
     } finally {
       submitAbortControllerRef.current = null;
     }
@@ -269,20 +264,20 @@ const Contact = () => {
 
             <button 
               type="submit" 
-              disabled={buttonState !== 'idle'}
+              disabled={status.type === 'submitting' || status.type === 'success'}
               className="btn-primary" 
               style={{ 
                 width: '100%', 
                 justifyContent: 'center', 
                 padding: '1rem', 
                 fontSize: '1rem', 
-                filter: buttonState !== 'idle' ? 'contrast(0.8) brightness(0.9)' : 'none', 
-                cursor: buttonState !== 'idle' ? 'not-allowed' : 'pointer',
+                filter: (status.type === 'submitting' || status.type === 'success') ? 'contrast(0.8) brightness(0.9)' : 'none',
+                cursor: (status.type === 'submitting' || status.type === 'success') ? 'not-allowed' : 'pointer',
                 height: '56px' 
               }}
             >
               <AnimatePresence mode="wait">
-                {buttonState === 'idle' && (
+                {(status.type === 'idle' || status.type === 'error') && (
                   <motion.div 
                     key="idle" 
                     initial={{ opacity: 0, y: 15 }} 
@@ -293,7 +288,7 @@ const Contact = () => {
                     Send Message <Send size={18} />
                   </motion.div>
                 )}
-                {buttonState === 'submitting' && (
+                {status.type === 'submitting' && (
                   <motion.div 
                     key="submitting" 
                     initial={{ opacity: 0, scale: 0.8 }} 
@@ -307,7 +302,7 @@ const Contact = () => {
                     Sending...
                   </motion.div>
                 )}
-                {buttonState === 'success' && (
+                {status.type === 'success' && (
                   <motion.div 
                     key="success" 
                     initial={{ opacity: 0, scale: 0.8 }} 
