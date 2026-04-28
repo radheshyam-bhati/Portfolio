@@ -27,7 +27,7 @@ const Certifications = () => {
             transition={{ delay: shouldReduceMotion ? 0 : idx * 0.15, duration: 0.6, ease: "easeOut" }}
             style={{ transformStyle: 'preserve-3d' }}
           >
-            <a href={cert.link} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%', transformStyle: 'preserve-3d' }}>
+            <a href={cert.link} target="_blank" rel="noreferrer" aria-label={`View certificate for ${cert.title}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%', transformStyle: 'preserve-3d' }}>
               <TiltCard color={cert.color} style={{ padding: '2rem', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                 <motion.div 
                   whileHover={{ 

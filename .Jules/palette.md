@@ -1,0 +1,3 @@
+## 2025-01-20 - Unique ARIA labels for mapped elements
+**Learning:** Icon-only interactive elements (like anchor tags containing GitHub/External links) when rendered inside loops or mapped arrays, must interpolate unique identifiers (like item titles) in their `aria-label`s to remain distinguishable for screen reader users. Generic labels like "GitHub link" across multiple items are unhelpful.
+**Action:** Always verify if a component maps over an array to render icon-only links or buttons, and if so, append contextual text from the item (e.g. `aria-label={\`View \${project.title} on GitHub\`}`).
