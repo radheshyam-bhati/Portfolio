@@ -1,0 +1,3 @@
+## 2026-04-30 - [Missing ARIA labels on mapped icon-only links]
+**Learning:** In the Projects component, icon-only interactive elements (GitHub and ExternalLink anchor tags) were rendered inside a mapped array without descriptive labels. This creates a severe accessibility issue where screen reader users cannot differentiate between links for multiple projects (they would all just read as 'Link' or 'GitHub').
+**Action:** When implementing icon-only links inside loops or mapped arrays, always use string interpolation to include unique identifiers (like the item's title) in the `aria-label` (e.g., `aria-label={`View ${project.title} source code`}`).
