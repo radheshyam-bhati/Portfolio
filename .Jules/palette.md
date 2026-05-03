@@ -1,0 +1,3 @@
+## 2026-05-03 - Dynamic ARIA Labels in Lists
+**Learning:** When using generic icon-only buttons (like GitHub or Live Link icons) inside a loop mapping over data items (like projects), screen readers will read duplicate, indistinguishable generic labels if static `aria-label` attributes are used (e.g. "GitHub Link"). This makes it impossible for screen reader users to know which item the action belongs to when tabbing through focusable elements.
+**Action:** Always interpolate unique item identifiers (like `project.title`) into the `aria-label` string when rendering interactive elements inside loops (e.g., `aria-label="GitHub repository for ${project.title}"`).
