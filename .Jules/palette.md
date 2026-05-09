@@ -1,0 +1,3 @@
+## 2025-05-09 - Unique ARIA Labels for Icon-Only Links in Mapped Arrays
+**Learning:** Icon-only interactive elements (like anchor tags with Lucide React icons) rendered inside loops/mapped arrays require unique interpolation in their `aria-label` attributes (e.g., ``aria-label={`View ${project.title} on GitHub`}``) to remain distinguishable for screen reader users and to provide helpful native tooltips for mouse users.
+**Action:** Always check mapped arrays of components (like projects, certifications) for icon-only links and ensure they use template literals to interpolate a unique identifier into their `aria-label` and `title` attributes.
