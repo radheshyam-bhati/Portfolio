@@ -41,12 +41,26 @@ const Projects = () => {
                   
                   <div style={{ display: 'flex', gap: '10px', transform: 'translateZ(10px)' }}>
                     {project.links.github && (
-                      <a href={project.links.github} target="_blank" rel="noreferrer" style={{ color: 'var(--color-text-muted)', transition: 'color 0.2s' }}>
+                      <a
+                        href={project.links.github}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`View GitHub repository for ${project.title}`}
+                        title={`View GitHub repository for ${project.title}`}
+                        style={{ color: 'var(--color-text-muted)', transition: 'color 0.2s' }}
+                      >
                         <Github size={20} />
                       </a>
                     )}
                     {project.links.live && (
-                      <a href={project.links.live} target="_blank" rel="noreferrer" style={{ color: 'var(--color-text-muted)', transition: 'color 0.2s' }}>
+                      <a
+                        href={project.links.live}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`View live demo of ${project.title}`}
+                        title={`View live demo of ${project.title}`}
+                        style={{ color: 'var(--color-text-muted)', transition: 'color 0.2s' }}
+                      >
                         <ExternalLink size={20} />
                       </a>
                     )}
