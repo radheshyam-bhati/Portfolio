@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://radheshyam-cod.github.io/Portfolio/sitemap.xml
