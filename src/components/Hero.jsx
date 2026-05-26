@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
 import { MousePointer2, Briefcase } from 'lucide-react';
 import { portfolioData } from '../data/portfolioData';
@@ -49,8 +50,8 @@ const MagneticButton = ({ children, className, style, href }) => {
 const TypewriterHeroText = ({ firstName, lastName, delayMs = 400 }) => {
   const shouldReduceMotion = useReducedMotion();
   
-  const firstChars = firstName.split("");
-  const lastChars = lastName.split("");
+  const firstChars = useMemo(() => firstName.split(""), [firstName]);
+  const lastChars = useMemo(() => lastName.split(""), [lastName]);
 
   return (
     <h1 style={{ fontSize: 'clamp(3.5rem, 8vw, 6rem)', fontWeight: '800', lineHeight: 1, marginBottom: '1.5rem', letterSpacing: '-2px' }}>
