@@ -74,13 +74,7 @@ const Preloader = ({ onComplete }) => {
             position: absolute;
             border-radius: 50%;
             background: rgba(220, 20, 20, 0.6);
-            animation: floatUp linear infinite;
-          }
-          @keyframes floatUp {
-            0%   { transform: translateY(100vh) scale(0); opacity: 0; }
-            10%  { opacity: 1; }
-            90%  { opacity: 0.8; }
-            100% { transform: translateY(-100px) scale(1.2); opacity: 0; }
+            animation: floatUpGlobal linear infinite;
           }
           .preloader-glow-ring {
             position: absolute;
