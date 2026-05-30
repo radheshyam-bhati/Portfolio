@@ -2,9 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/Portfolio/images/favicon.png" />
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- Content Security Policy to mitigate XSS risks -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:;" />
+
     <!-- Primary SEO Meta Tags -->
     <title>Radheshyam Bhati | Computer Science & Engineering | Agentic AI Systems</title>
     <meta name="description" content="Official portfolio of Radheshyam Bhati - Computer Science & Engineering student specializing in Agentic AI Systems, AI Product Engineering, Systems Thinking, and Full-Stack Development." />
@@ -52,10 +55,9 @@
       ]
     }
     </script>
-    <script type="module" crossorigin src="/Portfolio/assets/index-CnfTE8uR.js"></script>
-    <link rel="stylesheet" crossorigin href="/Portfolio/assets/index-x-4Hu0tW.css">
   </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
