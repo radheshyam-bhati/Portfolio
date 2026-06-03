@@ -1,0 +1,4 @@
+## 2025-02-14 - Add Client-Side Input Length Limits to Prevent DoS
+**Vulnerability:** Client-side form lacked maximum length limits on input fields (`name`, `email`, `message`), potentially allowing users to paste excessively large payloads that could lead to Denial of Service (DoS) when processed or transmitted downstream.
+**Learning:** Even if backend or external services handle input validation, missing client-side constraints create unnecessary risk and degrade performance when processing massive inputs.
+**Prevention:** Always enforce explicit `maxLength` limits on client-side inputs and mirror these constraints in the validation logic before forming payloads.
