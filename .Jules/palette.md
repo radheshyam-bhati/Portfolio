@@ -1,0 +1,3 @@
+## 2025-02-14 - Custom Cursor Keyboard Accessibility
+**Learning:** Custom cursors typically only respond to mouse movements (`pointermove`), which completely hides the focused state for keyboard users, making interactive elements difficult to distinguish. High-frequency `pointermove` events with `.closest()` DOM lookups also cause performance issues.
+**Action:** Always listen to `focusin` and `focusout` on the window to detect keyboard focus on interactive elements. Snap the cursor position to the element's center using `getBoundingClientRect()` to provide clear visual feedback to keyboard users. Use discrete `pointerover` and `pointerout` events instead of running `.closest()` inside `pointermove`.

@@ -30,13 +30,33 @@ const CustomCursor = () => {
     const handlePointerMove = (event) => {
       cursorX.set(event.clientX);
       cursorY.set(event.clientY);
+    };
 
-      if (!(event.target instanceof Element)) {
-        updateHoverState(false);
-        return;
+    const handlePointerOver = (event) => {
+      if (event.target instanceof Element && event.target.closest(HOVERABLE_SELECTOR)) {
+        updateHoverState(true);
       }
+    };
 
-      updateHoverState(Boolean(event.target.closest(HOVERABLE_SELECTOR)));
+    const handlePointerOut = (event) => {
+      if (event.target instanceof Element && event.target.closest(HOVERABLE_SELECTOR)) {
+        updateHoverState(false);
+      }
+    };
+
+    const handleFocusIn = (event) => {
+      if (event.target instanceof Element && event.target.closest(HOVERABLE_SELECTOR)) {
+        updateHoverState(true);
+        const rect = event.target.getBoundingClientRect();
+        cursorX.set(rect.left + rect.width / 2);
+        cursorY.set(rect.top + rect.height / 2);
+      }
+    };
+
+    const handleFocusOut = (event) => {
+      if (event.target instanceof Element && event.target.closest(HOVERABLE_SELECTOR)) {
+        updateHoverState(false);
+      }
     };
 
     const handlePointerLeave = () => {
@@ -46,10 +66,18 @@ const CustomCursor = () => {
     };
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('pointerover', handlePointerOver, { passive: true });
+    window.addEventListener('pointerout', handlePointerOut, { passive: true });
+    window.addEventListener('focusin', handleFocusIn, { passive: true });
+    window.addEventListener('focusout', handleFocusOut, { passive: true });
     document.documentElement.addEventListener('mouseleave', handlePointerLeave);
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerover', handlePointerOver);
+      window.removeEventListener('pointerout', handlePointerOut);
+      window.removeEventListener('focusin', handleFocusIn);
+      window.removeEventListener('focusout', handleFocusOut);
       document.documentElement.removeEventListener('mouseleave', handlePointerLeave);
     };
   }, [cursorX, cursorY]);
