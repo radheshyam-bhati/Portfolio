@@ -1,0 +1,4 @@
+## 2025-02-14 - Fix Reverse Tabnabbing Vulnerability
+**Vulnerability:** External links opening in new tabs (`target="_blank"`) used `rel="noreferrer"` but omitted `noopener`. This exposes the application to reverse tabnabbing, where the newly opened page can maliciously manipulate the original page via the `window.opener` reference.
+**Learning:** This vulnerability existed because the developer might have assumed that `noreferrer` implies `noopener` or wasn't aware of the `window.opener` behavior. Explicitly adding `noopener` is crucial to prevent reverse tabnabbing, especially when linking to untrusted or external resources.
+**Prevention:** Always use `rel="noopener noreferrer"` when opening external links with `target="_blank"`. Consider enforcing this via linting rules (e.g., eslint-plugin-react/jsx-no-target-blank) if available.
