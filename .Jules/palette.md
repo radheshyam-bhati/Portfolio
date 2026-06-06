@@ -1,0 +1,3 @@
+## 2025-02-20 - Adding dynamic ARIA labels to mapped list elements
+**Learning:** When using map functions to render list elements (like project cards), static `aria-label` attributes on repetitive items (e.g., generic "View GitHub" buttons) create indistinguishable noise for screen reader users. The application's `Projects.jsx` contained these inaccessible patterns for icon-only links.
+**Action:** Always utilize the loop item's data (e.g., `project.title`) to dynamically generate contextually specific `aria-label` and `title` attributes for mapped interactive elements, ensuring every repeated control uniquely identifies its target.
