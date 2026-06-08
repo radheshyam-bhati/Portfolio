@@ -1,0 +1,4 @@
+## 2024-06-08 - Added Input Length Limits to Contact Form
+**Vulnerability:** Missing input length limits on the contact form (`name`, `email`, `message` fields), which could allow attackers to send excessively large payloads leading to Denial of Service (DoS) or increased costs for downstream services (like FormSubmit).
+**Learning:** Client-side forms must always enforce explicit `maxLength` limits on inputs to serve as the first line of defense against oversized payloads, even if relying on a third-party service. The limits should be reasonable for their respective fields.
+**Prevention:** Always add `maxLength` attributes to all user-facing inputs and textareas. Define the maximum allowed limits as constants in utility files so they can be reused for both client-side UI limitations and programmatic validation logic before submission.
