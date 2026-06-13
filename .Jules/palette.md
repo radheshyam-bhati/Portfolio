@@ -1,0 +1,3 @@
+## 2025-06-12 - Dynamic Labels for Icon-Only Mapped Components
+**Learning:** In dynamically mapped components (e.g., grids or lists) where icon-only links appear multiple times, generic `aria-label`s are insufficient and create repetition/noise for screen reader users. They must be dynamic and incorporate the context (e.g., item title) to be uniquely identifiable.
+**Action:** Always append dynamic strings (like `project.title` or `item.id`) to `aria-label` and `title` attributes on icon-only interactive elements inside `.map()` iterations to provide distinct context and native tooltips.
