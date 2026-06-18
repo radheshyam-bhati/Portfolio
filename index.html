@@ -5,6 +5,17 @@
     <link rel="icon" type="image/png" href="/Portfolio/images/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- Security Header: Content Security Policy -->
+    <!--
+      Sentinel: Defense in Depth
+      Restricts sources of content to prevent XSS and other injection attacks.
+      - default-src 'self': Only allow content from the same origin by default
+      - script-src 'self' 'unsafe-inline': Allow scripts from the same origin and inline scripts (needed for Vite build tools and JSON-LD)
+      - style-src 'self' 'unsafe-inline': Allow styles from the same origin and inline styles
+      - img-src 'self' data: https://radheshyam-cod.github.io: Allow images from the same origin, data URIs, and the live site
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://radheshyam-cod.github.io; connect-src 'self';" />
+
     <!-- Primary SEO Meta Tags -->
     <title>Radheshyam Bhati | Computer Science & Engineering | Agentic AI Systems</title>
     <meta name="description" content="Official portfolio of Radheshyam Bhati - Computer Science & Engineering student specializing in Agentic AI Systems, AI Product Engineering, Systems Thinking, and Full-Stack Development." />
