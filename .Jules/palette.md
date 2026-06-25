@@ -1,0 +1,3 @@
+## 2026-06-24 - Adding ARIA labels and tooltips to icon-only links
+**Learning:** Icon-only links within mapped collections (like grids or lists) must use dynamic, context-specific text (e.g., incorporating the item's title or ID) for `aria-label` and `title` attributes to ensure screen reader users can distinguish between multiple identical icons. It is also good practice to mirror the `aria-label` in a `title` attribute to provide a native tooltip for mouse users.
+**Action:** When adding `aria-label` to icon-only links for accessibility, always ensure dynamic data (like titles) is incorporated to differentiate them. Also mirror the text in a `title` attribute to provide a native tooltip for mouse users without requiring additional UI dependencies.
