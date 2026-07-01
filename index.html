@@ -2,6 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Security: Content Security Policy to restrict external resources and prevent XSS -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://formsubmit.co; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;">
     <link rel="icon" type="image/png" href="/Portfolio/images/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
