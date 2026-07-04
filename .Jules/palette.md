@@ -1,0 +1,3 @@
+## 2025-07-04 - Dynamic ARIA Labels in Mapped Collections
+**Learning:** Screen readers cannot easily distinguish identical icon-only buttons (like a Github icon) if they appear repeatedly in a mapped list (like a list of projects). A generic `aria-label="GitHub"` is insufficient because the user doesn't know *which* GitHub link they are focused on.
+**Action:** When adding `aria-label` or `title` to icon-only links inside mapped components, always inject dynamic, context-specific text (e.g. `aria-label={"View " + project.title + " on GitHub"}`) to provide clear context to assistive technologies.
