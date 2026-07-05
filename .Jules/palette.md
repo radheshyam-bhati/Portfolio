@@ -1,0 +1,3 @@
+## 2025-03-05 - Context-Specific Accessible Links
+**Learning:** When using purely icon-based external links within a mapped data structure (like cards mapped from `portfolioData.js`), generic aria-labels (like "GitHub") cause accessibility issues because screen reader users encounter identical links that lead to different destinations without sufficient context to distinguish them.
+**Action:** Always inject contextually identifying data into `aria-label` and `title` properties for icon-only links inside repeating blocks (e.g., ``aria-label={`View ${project.title} source code on GitHub`}``).
