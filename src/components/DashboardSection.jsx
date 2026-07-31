@@ -223,7 +223,9 @@ const LeaderCard = ({ icon: Icon, iconColor, label, project }) => (
 // ---------------------------------------------------------------------------
 
 const DashboardSection = () => {
-  const { dashboard, loading, error, retry } = useDashboard({ lazy: true });
+  // Fetch on mount. (lazy:true would wait for a retry() call that nothing
+  // triggers — leaving the dashboard permanently empty.)
+  const { dashboard, loading, error, retry } = useDashboard();
 
   // Memoize sub-data so child components don't cause re-renders of the whole section
   const overview = useMemo(() => dashboard?.overview ?? null, [dashboard]);
