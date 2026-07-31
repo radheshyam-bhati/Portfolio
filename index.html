@@ -4,7 +4,17 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/Portfolio/images/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
+    <!-- Security: Content Security Policy.
+         Allow-lists the external origins the app actually talks to:
+         - api.github.com            (GitHub REST API: profile, repos, languages)
+         - raw.githubusercontent.com (READMEs, portfolio.json, screenshots)
+         - formsubmit.co             (contact form endpoint)
+         - fonts.googleapis.com / fonts.gstatic.com (Google Fonts @import)
+         - media-src                  (auto-discovered demo.mp4 / demo.webm)
+         Images may load from any https: host (GitHub avatars, raw media). -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https://raw.githubusercontent.com; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://formsubmit.co; frame-src 'self'; object-src 'none'; base-uri 'self';" />
+
     <!-- Primary SEO Meta Tags -->
     <title>Radheshyam Bhati | Computer Science & Engineering | Agentic AI Systems</title>
     <meta name="description" content="Official portfolio of Radheshyam Bhati - Computer Science & Engineering student specializing in Agentic AI Systems, AI Product Engineering, Systems Thinking, and Full-Stack Development." />
