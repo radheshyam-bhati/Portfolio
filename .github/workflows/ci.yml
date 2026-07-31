@@ -38,3 +38,37 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  deploy:
+    name: Deploy to GitHub Pages
+    # Only deploy after a green build, and only from the default branch.
+    needs: lint-test-build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy to GitHub Pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          # `npm run deploy` runs the `predeploy` (build) hook first, then
+          # publishes the built `dist/` to the `gh-pages` branch via the
+          # `gh-pages` package already configured in package.json.
+          npm run deploy
