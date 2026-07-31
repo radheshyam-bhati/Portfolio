@@ -14,12 +14,20 @@ import Skills from './components/Skills';
 import Projects from './components/Projects';
 import Education from './components/Education';
 import Certifications from './components/Certifications';
+import DashboardSection from './components/DashboardSection';
 import Contact from './components/Contact';
 import Preloader from './components/Preloader';
+import AssistantButton from './components/AssistantButton';
+import AssistantModal from './components/AssistantModal';
+import ProjectModal from './components/ProjectModal';
+import { useProjects } from './hooks/useProjects';
 import { createFloatingParticles } from './utils/particles';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const { projects } = useProjects();
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
 
@@ -90,6 +98,32 @@ function App() {
       </div>
 
       <Navbar />
+
+      {/* Floating assistant */}
+      <AssistantButton
+        isOpen={assistantOpen}
+        onClick={() => setAssistantOpen((prev) => !prev)}
+      />
+      <AssistantModal
+        isOpen={assistantOpen}
+        onClose={() => setAssistantOpen(false)}
+        onOpenProject={(repoName) => {
+          const project = projects.find((p) => p.repoName === repoName);
+          if (project) {
+            setSelectedProject(project);
+            setAssistantOpen(false);
+          }
+        }}
+      />
+
+      {/* Project modal opened from search results */}
+      {selectedProject && (
+        <ProjectModal
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
+        />
+      )}
+
       <main>
         <Hero />
         <About />
@@ -97,6 +131,7 @@ function App() {
         <Projects />
         <Education />
         <Certifications />
+        <DashboardSection />
         <Contact />
       </main>
     </div>
