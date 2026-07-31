@@ -122,6 +122,44 @@ export function topLanguageStats(stats, limit = 5) {
   }));
 }
 
+/**
+ * Merges curated/extra language names into a GitHub-detected breakdown.
+ *
+ * Keeps every existing stat untouched and appends any extra names that are
+ * not already present (case-insensitive). Extras have no byte count, so their
+ * `percentage` is `null` and consumers render them as plain chips — this
+ * "add new but never remove old" behaviour is the user-requested behaviour
+ * for showcasing tools GitHub cannot detect (Figma, UI/UX, MySQL, …).
+ *
+ * @param {LanguageStat[]|null|undefined} stats – GitHub-detected stats
+ * @param {string[]} [extraNames] – curated extra language/tech names
+ * @returns {LanguageStat[]}
+ */
+export function mergeExtraLanguages(stats, extraNames = []) {
+  if (!Array.isArray(stats)) return [];
+  if (!Array.isArray(extraNames) || extraNames.length === 0) return stats;
+
+  const seen = new Set(stats.map((stat) => stat.name.toLowerCase()));
+  const extras = [];
+
+  for (const rawName of extraNames) {
+    // portfolio.json is hand-edited JSON — guard against non-string entries
+    // (e.g. a stray number) so a typo never crashes the render.
+    if (typeof rawName !== 'string') continue;
+    const name = rawName.trim();
+    if (!name || seen.has(name.toLowerCase())) continue;
+    seen.add(name.toLowerCase());
+    extras.push({
+      name,
+      bytes: 0,
+      percentage: null,
+      color: accentColourForLanguage(name),
+    });
+  }
+
+  return [...stats, ...extras];
+}
+
 // ---------------------------------------------------------------------------
 // Tag derivation
 // ---------------------------------------------------------------------------
