@@ -287,22 +287,29 @@ const Projects = () => {
                   {project.title}
                 </h3>
 
-                {/* Summary (preferred) or fallback description */}
-                <p
-                  style={{
-                    color: 'var(--color-text-muted)',
-                    fontSize: '0.9rem',
-                    marginBottom: '1rem',
-                    flex: 1,
-                    transform: 'translateZ(5px)',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {project.summary || project.description}
-                </p>
+                {/* Summary (preferred) or fallback description — shown only when
+                    the repo actually has one, so no blank filler appears */}
+                {project.summary || project.description ? (
+                  <p
+                    style={{
+                      color: 'var(--color-text-muted)',
+                      fontSize: '0.9rem',
+                      marginBottom: '1rem',
+                      flex: 1,
+                      transform: 'translateZ(5px)',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {project.summary || project.description}
+                  </p>
+                ) : (
+                  // Spacer keeps the tech tags pinned to the bottom of the card
+                  // even when there is no description to show.
+                  <div style={{ flex: 1, transform: 'translateZ(5px)' }} />
+                )}
 
                 {/* Tech tags */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', transform: 'translateZ(10px)' }}>

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ExternalLink,
@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useCaseStudy } from '../hooks/useCaseStudy';
 import { useProjectLanguages } from '../hooks/useProjectLanguages';
+import { mergeExtraLanguages } from '../utils/githubMapper';
 import ArchitectureExplorer from './ArchitectureExplorer';
 
 // ---------------------------------------------------------------------------
@@ -102,7 +103,9 @@ const TechChip = ({ name }) => (
   </span>
 );
 
-// Language chip with percentage + accent dot (US2)
+// Language chip with percentage + accent dot (US2).
+// `percentage` may be null for curated extras (Figma, MySQL, …) — those
+// render as plain chips without a percentage, never removing detected ones.
 const LanguageChip = ({ language }) => (
   <span
     style={{
@@ -127,9 +130,11 @@ const LanguageChip = ({ language }) => (
       }}
     />
     {language.name}
-    <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>
-      {language.percentage}%
-    </span>
+    {language.percentage != null && (
+      <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>
+        {language.percentage}%
+      </span>
+    )}
   </span>
 );
 
@@ -431,6 +436,13 @@ const ProjectModal = ({ project, onClose }) => {
   // keeping API usage within the unauthenticated rate limit (research D2).
   const { languages, loading: languagesLoading, load: loadLanguages } =
     useProjectLanguages(project.repoName);
+
+  // Append curated extras (e.g. Figma, MySQL, UI/UX) to the GitHub-detected
+  // breakdown WITHOUT removing any detected language (user request).
+  const mergedLanguages = useMemo(
+    () => mergeExtraLanguages(languages, project.extraLanguages),
+    [languages, project.extraLanguages],
+  );
 
   useEffect(() => {
     loadLanguages();
@@ -763,13 +775,14 @@ const ProjectModal = ({ project, onClose }) => {
                   )}
                 </div>
 
-                {/* --- Deployment description (US3 / FR-006) --- */}
-                {project.deployment?.url && (
+                {/* --- Description (US3 / FR-006) --- */}
+                {/* The description renders here (once) — only when real text
+                    exists, never filler. The Live Demo link itself is the
+                    "Live Demo" button above. */}
+                {(caseStudy?.summary || project.summary || project.description) && (
                   <SectionBody>
-                    <SectionTitle icon={ExternalLink}>Live Demo</SectionTitle>
-                    <Paragraph>
-                      {caseStudy?.summary || project.deployment.description || 'Check out the live deployment.'}
-                    </Paragraph>
+                    <SectionTitle>Summary</SectionTitle>
+                    <Paragraph>{caseStudy?.summary || project.summary || project.description}</Paragraph>
                   </SectionBody>
                 )}
 
@@ -789,28 +802,20 @@ const ProjectModal = ({ project, onClose }) => {
                 )}
 
                 {/* --- Language breakdown (US2 / FR-003) --- */}
-                {(languages.length > 0 || languagesLoading) && (
+                {(mergedLanguages.length > 0 || languagesLoading) && (
                   <SectionBody>
                     <SectionTitle icon={Code2}>Languages</SectionTitle>
-                    {languagesLoading && languages.length === 0 ? (
+                    {languagesLoading && mergedLanguages.length === 0 ? (
                       <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
                         Loading language breakdown…
                       </p>
                     ) : (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                        {languages.map((lang) => (
+                        {mergedLanguages.map((lang) => (
                           <LanguageChip key={lang.name} language={lang} />
                         ))}
                       </div>
                     )}
-                  </SectionBody>
-                )}
-
-                {/* --- Summary --- */}
-                {caseStudy?.summary && (
-                  <SectionBody>
-                    <SectionTitle>Summary</SectionTitle>
-                    <Paragraph>{caseStudy.summary}</Paragraph>
                   </SectionBody>
                 )}
 
