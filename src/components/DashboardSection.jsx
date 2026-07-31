@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, RefreshCw, Star, GitFork, Calendar, Clock, ExternalLink } from 'lucide-react';
 import SectionHeading from './SectionHeading';
@@ -223,9 +223,43 @@ const LeaderCard = ({ icon: Icon, iconColor, label, project }) => (
 // ---------------------------------------------------------------------------
 
 const DashboardSection = () => {
-  // Fetch on mount. (lazy:true would wait for a retry() call that nothing
-  // triggers — leaving the dashboard permanently empty.)
-  const { dashboard, loading, error, retry } = useDashboard();
+  const sectionRef = useRef(null);
+  const [hasTriggered, setHasTriggered] = useState(false);
+
+  // Lazy-load: fetch only when the section scrolls into view — saves GitHub
+  // API calls on every page load.
+  const { dashboard, loading, error, retry } = useDashboard({ lazy: true });
+
+  // IntersectionObserver triggers the first fetch when the section approaches
+  // the viewport, then disconnects so it fires exactly once.
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node || hasTriggered) return;
+
+    // Fallback for very old browsers without IntersectionObserver.
+    if (typeof IntersectionObserver === 'undefined') {
+      setHasTriggered(true);
+      retry();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setHasTriggered(true);
+          retry();
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px 0px', threshold: 0 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasTriggered, retry]);
+
+  // Show the skeleton until the first fetch has been triggered AND resolved.
+  const pending = !hasTriggered || loading;
 
   // Memoize sub-data so child components don't cause re-renders of the whole section
   const overview = useMemo(() => dashboard?.overview ?? null, [dashboard]);
@@ -236,17 +270,17 @@ const DashboardSection = () => {
   const insights = useMemo(() => dashboard?.insights ?? null, [dashboard]);
 
   return (
-    <section id="dashboard" className="section">
+    <section ref={sectionRef} id="dashboard" className="section">
       <SectionHeading number="04." title="Engineering Dashboard" />
 
-      {/* Loading state */}
-      {loading && <SkeletonSection />}
+      {/* Skeleton — shown until scrolled into view, then while fetching */}
+      {pending && <SkeletonSection />}
 
       {/* Error state */}
-      {!loading && error && <ErrorState message="Unable to load dashboard data." onRetry={retry} />}
+      {!pending && error && <ErrorState message="Unable to load dashboard data." onRetry={retry} />}
 
       {/* Dashboard content */}
-      {!loading && !error && (
+      {!pending && !error && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
