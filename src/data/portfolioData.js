@@ -1,3 +1,24 @@
+// ---------------------------------------------------------------------------
+// Curated per-repo overrides (NOT replaceable via GitHub metadata)
+// ---------------------------------------------------------------------------
+//
+// GitHub only reports the *primary* detected language and cannot express
+// design/UI tools (Figma, UI/UX) or databases (MySQL) that don't appear as
+// code languages. `extraLanguages` are ADDED to the GitHub-detected breakdown
+// — existing languages are never removed. `summary` supplies a description
+// when the repo has none (e.g. IntelliDine has no GitHub description).
+
+/**
+ * @type {Record<string, { summary?: string, extraLanguages?: string[] }>}
+ */
+export const projectOverrides = {
+  IntelliDine: {
+    summary:
+      'IntelliDine — an AI-powered restaurant discovery and ordering platform. Built with a full-stack TypeScript/JavaScript frontend and Python/MySQL backend, with a polished UI/UX and a live demo on Vercel.',
+    extraLanguages: ['Python', 'CSS', 'MySQL', 'Figma', 'UI/UX', 'JavaScript', 'Java'],
+  },
+};
+
 export const portfolioData = {
   personalInfo: {
     name: 'Radheshyam Bhati',
