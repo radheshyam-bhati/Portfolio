@@ -3,6 +3,7 @@ import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Cpu, GitBranch, Layers } from 'lucide-react';
 import SectionHeading from './SectionHeading';
 import { portfolioData } from '../data/portfolioData';
+import { useProfile } from '../hooks/useProfile';
 
 const NumberTicker = ({ targetValue, duration = 600 }) => {
   const ref = useRef(null);
@@ -88,33 +89,40 @@ const TypewriterText = ({ text }) => {
 
 const dnaPillars = [
   {
-    title: "Systems Thinking",
-    description: "Designing software as connected feedback loops. I focus on high predictability, clear data flow, and highly modular architecture.",
+    title: 'Systems Thinking',
+    description: 'Designing software as connected feedback loops. I focus on high predictability, clear data flow, and highly modular architecture.',
     icon: GitBranch,
-    color: "#ef4444",
+    color: '#ef4444',
   },
   {
-    title: "AI Product Engineering",
-    description: "Orchestrating autonomous agents and structured outputs. Obsessed with building deterministic frameworks around probabilistic models.",
+    title: 'AI Product Engineering',
+    description: 'Orchestrating autonomous agents and structured outputs. Obsessed with building deterministic frameworks around probabilistic models.',
     icon: Cpu,
-    color: "#dc2626",
+    color: '#dc2626',
   },
   {
-    title: "Full-Stack Autonomy",
-    description: "Fluent across frontend and backend environments. Building fast APIs, schemas, and clean, micro-animated interfaces.",
+    title: 'Full-Stack Autonomy',
+    description: 'Fluent across frontend and backend environments. Building fast APIs, schemas, and clean, micro-animated interfaces.',
     icon: Layers,
-    color: "#fb7185",
-  }
+    color: '#fb7185',
+  },
 ];
 
 const About = () => {
+  const { profile } = useProfile();
+
+  // Prefer GitHub bio over the hardcoded about text
+  const aboutParagraphs = profile?.bio
+    ? [profile.bio]
+    : portfolioData.personalInfo.about;
+
   return (
     <section id="about" className="section">
       <SectionHeading number={<NumberTicker targetValue="1" />} title="About me" />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '4rem', alignItems: 'start' }}>
         <div style={{ fontSize: '1.1rem', color: 'var(--color-text-muted)' }}>
-          {portfolioData.personalInfo.about.map((paragraph) => (
+          {aboutParagraphs.map((paragraph) => (
             <p key={paragraph.slice(0, 32)} style={{ marginBottom: '1.5rem', lineHeight: '1.8' }}>
               <TypewriterText text={paragraph} />
             </p>
@@ -125,7 +133,7 @@ const About = () => {
           <h3 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--color-neon-blue)', marginBottom: '0.5rem', fontWeight: 700 }}>
             Developer DNA
           </h3>
-          
+
           {dnaPillars.map((pillar, idx) => {
             const IconComponent = pillar.icon;
             return (

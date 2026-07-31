@@ -1,6 +1,7 @@
 import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
 import { MousePointer2, Briefcase } from 'lucide-react';
 import { portfolioData } from '../data/portfolioData';
+import { useProfile } from '../hooks/useProfile';
 
 const MagneticButton = ({ children, className, style, href }) => {
   const x = useMotionValue(0);
@@ -26,7 +27,7 @@ const MagneticButton = ({ children, className, style, href }) => {
     y.set(0);
   };
 
-  const Tag = href ? "a" : "button";
+  const Tag = href ? 'a' : 'button';
 
   return (
     <motion.div
@@ -48,9 +49,9 @@ const MagneticButton = ({ children, className, style, href }) => {
 
 const TypewriterHeroText = ({ firstName, lastName, delayMs = 400 }) => {
   const shouldReduceMotion = useReducedMotion();
-  
-  const firstChars = firstName.split("");
-  const lastChars = lastName.split("");
+
+  const firstChars = firstName.split('');
+  const lastChars = lastName.split('');
 
   return (
     <h1 style={{ fontSize: 'clamp(3.5rem, 8vw, 6rem)', fontWeight: '800', lineHeight: 1, marginBottom: '1.5rem', letterSpacing: '-2px' }}>
@@ -60,12 +61,12 @@ const TypewriterHeroText = ({ firstName, lastName, delayMs = 400 }) => {
             key={index}
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 50, rotateX: shouldReduceMotion ? 0 : -90 }}
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
-            transition={{ 
-              duration: 0.8, 
-              ease: [0.2, 0.65, 0.3, 0.9], 
-              delay: shouldReduceMotion ? 0 : (delayMs / 1000) + (index * 0.05) 
+            transition={{
+              duration: 0.8,
+              ease: [0.2, 0.65, 0.3, 0.9],
+              delay: shouldReduceMotion ? 0 : (delayMs / 1000) + (index * 0.05),
             }}
-            style={{ display: "inline-block", whiteSpace: "pre" }}
+            style={{ display: 'inline-block', whiteSpace: 'pre' }}
           >
             {char}
           </motion.span>
@@ -77,12 +78,12 @@ const TypewriterHeroText = ({ firstName, lastName, delayMs = 400 }) => {
             key={index}
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 50, rotateX: shouldReduceMotion ? 0 : -90 }}
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
-            transition={{ 
-              duration: 0.8, 
-              ease: [0.2, 0.65, 0.3, 0.9], 
-              delay: shouldReduceMotion ? 0 : (delayMs / 1000) + ((firstChars.length + index) * 0.05) 
+            transition={{
+              duration: 0.8,
+              ease: [0.2, 0.65, 0.3, 0.9],
+              delay: shouldReduceMotion ? 0 : (delayMs / 1000) + ((firstChars.length + index) * 0.05),
             }}
-            style={{ display: "inline-block", whiteSpace: "pre" }}
+            style={{ display: 'inline-block', whiteSpace: 'pre' }}
           >
             {char}
           </motion.span>
@@ -93,7 +94,15 @@ const TypewriterHeroText = ({ firstName, lastName, delayMs = 400 }) => {
 };
 
 const Hero = () => {
-  const [firstName, ...lastNameParts] = portfolioData.personalInfo.name.split(' ');
+  const { profile } = useProfile();
+
+  // Use GitHub profile data when available, fall back to hardcoded portfolioData
+  const displayName = profile?.name || portfolioData.personalInfo.name;
+  const displayAvatar = profile?.avatar || `${import.meta.env.BASE_URL}images/profile.png`;
+  const displayLocation = profile?.location || portfolioData.personalInfo.location;
+  const displayTagline = profile?.bio || portfolioData.personalInfo.tagline;
+
+  const [firstName, ...lastNameParts] = displayName.split(' ');
   const lastName = lastNameParts.join(' ');
 
   return (
@@ -101,15 +110,15 @@ const Hero = () => {
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 200, damping: 25, delay: 0.4 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 25, delay: 0.4 }}
         style={{ marginBottom: '2.5rem', position: 'relative' }}
       >
         <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', background: 'linear-gradient(to right, rgba(239, 68, 68, 0.3), rgba(248, 113, 113, 0.1))', opacity: 0.5, filter: 'blur(10px)' }} />
         <div style={{ padding: '6px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', borderRadius: '50%', position: 'relative', zIndex: 1, boxShadow: '0 0 30px rgba(239, 68, 68, 0.3)' }}>
-          <img 
-            src={`${import.meta.env.BASE_URL}images/profile.png`} 
-            alt={portfolioData.personalInfo.name} 
-            style={{ width: '130px', height: '130px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #050505' }} 
+          <img
+            src={displayAvatar}
+            alt={displayName}
+            style={{ width: '130px', height: '130px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #050505' }}
           />
         </div>
       </motion.div>
@@ -122,7 +131,7 @@ const Hero = () => {
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 20px', borderRadius: '30px', marginBottom: '2rem', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)' }}
       >
         <MousePointer2 size={16} color="var(--color-neon-blue)" />
-        {portfolioData.personalInfo.location}
+        {displayLocation}
       </motion.div>
 
       <TypewriterHeroText firstName={firstName} lastName={lastName} delayMs={400} />
@@ -133,7 +142,7 @@ const Hero = () => {
         transition={{ delay: 1.2 }}
         style={{ maxWidth: '600px', fontSize: '1.15rem', color: 'var(--color-text-muted)', marginBottom: '3.5rem', lineHeight: 1.6 }}
       >
-        {portfolioData.personalInfo.tagline}
+        {displayTagline}
       </motion.p>
 
       <motion.div
