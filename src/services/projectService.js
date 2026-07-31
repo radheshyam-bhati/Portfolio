@@ -1,6 +1,7 @@
 import { fetchRepositories } from './githubService';
 import { fetchMetadataForRepos } from './repositoryMetadataService';
 import { accentColourForLanguage, deriveTag, rawRepoFileUrl } from '../utils/githubMapper';
+import { projectOverrides } from '../data/portfolioData';
 
 /**
  * @typedef {object} Project
@@ -28,6 +29,8 @@ import { accentColourForLanguage, deriveTag, rawRepoFileUrl } from '../utils/git
  * @property {string|null} previewImage  – Auto-discovered preview image URL
  * @property {string}      repoName      – Repository name (for lazy README fetch)
  * @property {string}      defaultBranch – Default branch (for lazy README fetch)
+ * @property {string[]}    extraLanguages – Curated extra languages/tech appended to
+ *                              the GitHub-detected breakdown (never removes existing)
  */
 
 // ---------------------------------------------------------------------------
@@ -70,8 +73,22 @@ function mergeMetadata(repo, metadata) {
     previewImage: null,
     repoName: repo.name,
     defaultBranch: repo.default_branch,
-    deployment: null,
+    extraLanguages: [],
   };
+
+  // Local curated defaults — fallbacks used when the repo has no
+  // portfolio.json. Anything set via portfolio.json below always wins over
+  // these code defaults, so repo owners manage content without changing code.
+  const override = projectOverrides[repo.name];
+  if (override) {
+    if (typeof override.summary === 'string' && !project.summary && !project.description) {
+      project.summary = override.summary;
+      project.description = override.summary;
+    }
+    if (Array.isArray(override.extraLanguages)) {
+      project.extraLanguages = override.extraLanguages;
+    }
+  }
 
   if (!metadata) return project;
 
@@ -101,14 +118,10 @@ function mergeMetadata(repo, metadata) {
     project.previewImage = project.image;
   }
 
-  // Deployment info — live link + description (FR-005/FR-006).
-  // Derived after metadata overrides so `live` reflects the final URL
-  // (metadata `demo` > repo `homepage`).
-  if (project.live) {
-    project.deployment = {
-      url: project.live,
-      description: metadata.description || repo.description || null,
-    };
+  // No-code curated languages: portfolio.json `extraLanguages` appends to the
+  // GitHub-detected breakdown without ever removing detected languages.
+  if (Array.isArray(metadata.extraLanguages)) {
+    project.extraLanguages = metadata.extraLanguages;
   }
 
   return project;

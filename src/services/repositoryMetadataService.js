@@ -11,6 +11,9 @@ import { rawRepoFileUrl } from '../utils/githubMapper';
  * @property {string}   [demo]
  * @property {string}   [description]
  * @property {boolean}  [hidden]
+ * @property {string[]} [extraLanguages] – Curated extra languages/tech appended
+ *                              to the GitHub-detected language breakdown
+ *                              (never removes detected languages)
  *
  * // --- Case study fields ---
  * @property {string}   [summary]
