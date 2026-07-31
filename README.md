@@ -37,11 +37,11 @@ customize projects — and their languages — without touching this codebase.
 | --- | --- |
 | **Add a project** | Tag the repo with the `featured` (or `portfolio`) topic on GitHub, then hit the ⟳ refresh button on the Projects section. |
 | **Remove a project** | Untag the `featured`/`portfolio` topics, **or** add a `portfolio.json` to the repo with `"hidden": true`. |
-
-> ⚠️ Only the **topic** adds a project to the list. A `"featured": true` flag in
-> `portfolio.json` does **not** add a repo — it only marks an already-listed repo
-> as featured for sorting. To show a repo, tag it with the `featured` topic.
 | **Reorder projects** | Set `"priority"` in the repo's `portfolio.json` (lower = earlier). |
+
+> 💡 A ready-to-copy template with **every** supported field is available at
+> [`portfolio.example.json`](./portfolio.example.json) in this repo. Copy it into
+> any GitHub repo and **replace the placeholder strings** with your own values.
 
 ### Description, live demo & category
 Add a `portfolio.json` file to the repo's root:
@@ -72,6 +72,10 @@ Add a `portfolio.json` file to the repo's root:
 
 To remove a curated language, just delete it from that list. Detected
 languages can only be removed by changing the actual code in the repo.
+
+> ⚠️ Setting `"featured": true` in `portfolio.json` does **not** add the repo to
+> the Projects list — only the `featured`/`portfolio` **topic** does. The flag
+> only marks an already-listed repo for sorting.
 
 ## Tech Stack
 - React 19
