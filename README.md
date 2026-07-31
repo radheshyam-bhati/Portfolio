@@ -21,6 +21,10 @@
 - Reduced-motion friendly preloader and scroll progress behavior.
 - Contact form integration through FormSubmit with client-side validation and request cleanup.
 - Responsive navigation and custom cursor interactions for fine-pointer devices.
+- GitHub auto-sync: projects tagged with the `featured` or `portfolio` topic automatically appear in the Featured Projects section (no code changes needed to add a project).
+- Per-project detail views show a top-5 language breakdown (lazy-fetched, cached) and a live-demo link + description when a deployment is declared via the repo `homepage` or `portfolio.json` `demo`.
+- Manual refresh control on the Projects section to bypass the 30-minute cache.
+- Dev preview mode: `npm run dev:preview` shows ALL public repos in the Projects section without tagging any repo `featured`/`portfolio` on GitHub (development builds only).
 
 ## Tech Stack
 - React 19
@@ -35,14 +39,20 @@
 
 ## Installation
 ```bash
-git clone https://github.com/radheshyam-cod/radheshyam-portfolio.git
-cd radheshyam-portfolio
+git clone https://github.com/radheshyam-bhati/Portfolio.git
+cd Portfolio
 npm install
 ```
 
 ## Usage / Quick Start
 ```bash
 npm run dev
+```
+
+Preview the Projects section with every public repo (no GitHub topic tag needed):
+
+```bash
+npm run dev:preview
 ```
 
 Build for production:
@@ -83,6 +93,7 @@ npm run preview
 | Variable | Required | Description | Default |
 | --- | --- | --- | --- |
 | `VITE_FORMSUBMIT_ENDPOINT` | No | Full FormSubmit endpoint used by the contact form. | `https://formsubmit.co/ajax/<portfolio email>` |
+| `VITE_PREVIEW_ALL_REPOS` | No | When `true` in a development build, the Projects section shows every public repo (ignores the `featured`/`portfolio` topic filter). Hard-gated to dev — never active in production. | `false` |
 
 ## API Reference
 ### `POST` FormSubmit endpoint
