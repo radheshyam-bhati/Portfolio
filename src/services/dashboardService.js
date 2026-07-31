@@ -128,6 +128,30 @@ function colourForLanguage(language) {
 }
 
 /**
+ * Languages to attribute to a project for dashboard analytics.
+ *
+ * When a repo declares curated `extraLanguages` (via portfolio.json — no
+ * code changes), those REPLACE the GitHub-detected primary language so the
+ * dashboard's language chart reflects what the owner wants shown (the
+ * "rewrite old languages" behaviour). Falls back to the detected language
+ * when no curated list exists.
+ *
+ * @param {import('./projectService').Project} project
+ * @returns {string[]}
+ */
+function languagesForProject(project) {
+  if (Array.isArray(project.extraLanguages) && project.extraLanguages.length > 0) {
+    const curated = project.extraLanguages.filter(
+      (name) => typeof name === 'string' && name.trim().length > 0,
+    );
+    // Fall back to the detected language when the curated list is
+    // entirely blank/empty (e.g. a hand-edited portfolio.json typo).
+    if (curated.length > 0) return curated;
+  }
+  return project.language ? [project.language] : [];
+}
+
+/**
  * Computes the engineering timeline from all available data sources.
  *
  * @param {import('./projectService').Project[]} projects
@@ -377,9 +401,10 @@ export async function buildDashboard() {
     (p) => new Date(p.updatedAt) > threeMonthsAgo,
   );
 
-  // Count unique languages across all projects
+  // Count unique languages across all projects (curated extras replace
+  // the GitHub-detected primary language for repos that declare them)
   const languageSet = new Set(
-    projects.map((p) => p.language).filter(Boolean),
+    projects.flatMap(languagesForProject),
   );
 
   const overview = {
@@ -401,8 +426,8 @@ export async function buildDashboard() {
   /** @type {Map<string, number>} */
   const languageCount = new Map();
   for (const project of projects) {
-    if (project.language) {
-      languageCount.set(project.language, (languageCount.get(project.language) || 0) + 1);
+    for (const lang of languagesForProject(project)) {
+      languageCount.set(lang, (languageCount.get(lang) || 0) + 1);
     }
   }
 
@@ -412,8 +437,10 @@ export async function buildDashboard() {
   const recentThreshold = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
   const recentLangCount = new Map();
   for (const project of projects) {
-    if (!project.language || new Date(project.updatedAt) <= recentThreshold) continue;
-    recentLangCount.set(project.language, (recentLangCount.get(project.language) || 0) + 1);
+    if (new Date(project.updatedAt) <= recentThreshold) continue;
+    for (const lang of languagesForProject(project)) {
+      recentLangCount.set(lang, (recentLangCount.get(lang) || 0) + 1);
+    }
   }
   const trendingLang = [...recentLangCount.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
 
@@ -423,7 +450,8 @@ export async function buildDashboard() {
         new Date(a.updatedAt).getTime() > new Date(b.updatedAt).getTime() ? a : b,
       )
     : null;
-  const recentLang = recentProject?.language || null;
+  const recentLangs = recentProject ? languagesForProject(recentProject) : [];
+  const recentLang = recentLangs[0] || null;
 
   /** @type {LanguageStat[]} */
   const languages = [...languageCount.entries()]
