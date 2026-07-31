@@ -5,6 +5,7 @@
 
 ## Table of Contents
 - [Features](#features)
+- [Manage Content Without Code](#manage-content-without-code)
 - [Tech Stack](#tech-stack)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -25,6 +26,52 @@
 - Per-project detail views show a top-5 language breakdown (lazy-fetched, cached) and a live-demo link + description when a deployment is declared via the repo `homepage` or `portfolio.json` `demo`.
 - Manual refresh control on the Projects section to bypass the 30-minute cache.
 - Dev preview mode: `npm run dev:preview` shows ALL public repos in the Projects section without tagging any repo `featured`/`portfolio` on GitHub (development builds only).
+
+## Manage Content Without Code
+
+Every project card is sourced from a GitHub repo, so you can add, remove, and
+customize projects — and their languages — without touching this codebase.
+
+### Add / remove a project
+| Action | How |
+| --- | --- |
+| **Add a project** | Tag the repo with the `featured` (or `portfolio`) topic on GitHub, then hit the ⟳ refresh button on the Projects section. |
+| **Remove a project** | Untag the `featured`/`portfolio` topics, **or** add a `portfolio.json` to the repo with `"hidden": true`. |
+
+> ⚠️ Only the **topic** adds a project to the list. A `"featured": true` flag in
+> `portfolio.json` does **not** add a repo — it only marks an already-listed repo
+> as featured for sorting. To show a repo, tag it with the `featured` topic.
+| **Reorder projects** | Set `"priority"` in the repo's `portfolio.json` (lower = earlier). |
+
+### Description, live demo & category
+Add a `portfolio.json` file to the repo's root:
+
+```json
+{
+  "description": "AI-powered restaurant discovery platform.",
+  "demo": "https://intellidine.vercel.app",
+  "category": "AI & Web",
+  "priority": 1
+}
+```
+
+> The repo's own description and homepage (website field) on GitHub are also
+> picked up automatically — no `portfolio.json` needed for those.
+
+### Add / remove languages
+- **Detected languages** (from GitHub) always show with their real percentage —
+  they are never removed.
+- **Curated extras** (e.g. `Figma`, `UI/UX`, `MySQL`) are appended via
+  `"extraLanguages"` in the repo's `portfolio.json`:
+
+```json
+{
+  "extraLanguages": ["Python", "CSS", "MySQL", "Figma", "UI/UX", "Java"]
+}
+```
+
+To remove a curated language, just delete it from that list. Detected
+languages can only be removed by changing the actual code in the repo.
 
 ## Tech Stack
 - React 19
