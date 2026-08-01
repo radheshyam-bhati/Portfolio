@@ -12,8 +12,17 @@
          - formsubmit.co             (contact form endpoint)
          - fonts.googleapis.com / fonts.gstatic.com (Google Fonts @import)
          - media-src                  (auto-discovered demo.mp4 / demo.webm)
-         Images may load from any https: host (GitHub avatars, raw media). -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https://raw.githubusercontent.com; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://formsubmit.co; frame-src 'self'; object-src 'none'; base-uri 'self';" />
+         Images may load from any https: host (GitHub avatars, raw media).
+         Hardening: object-src 'none' (no plugins), frame-src 'none' (no embedded
+         frames), frame-ancestors 'none' (anti-clickjacking — the site cannot be
+         framed by other pages), form-action restricted to FormSubmit, base-uri
+         locked to self, and all http: requests upgraded to https:. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https://raw.githubusercontent.com; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://formsubmit.co; form-action 'self' https://formsubmit.co; frame-src 'none'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests" />
+
+    <!-- Security: Referrer Policy — never leak the full page URL to third-party
+         origins (GitHub, LinkedIn, FormSubmit, fonts). Cross-origin requests
+         only send the site origin, never the path/query. -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <!-- Primary SEO Meta Tags -->
     <title>Radheshyam Bhati | Computer Science & Engineering | Agentic AI Systems</title>
@@ -62,7 +71,7 @@
       ]
     }
     </script>
-    <script type="module" crossorigin src="/Portfolio/assets/index-nLAfUeum.js"></script>
+    <script type="module" crossorigin src="/Portfolio/assets/index-B8exXdq2.js"></script>
     <link rel="stylesheet" crossorigin href="/Portfolio/assets/index-BjQz_vir.css">
   </head>
   <body>
