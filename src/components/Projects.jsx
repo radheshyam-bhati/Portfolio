@@ -7,6 +7,7 @@ import ProjectModal from './ProjectModal';
 import { useProjects } from '../hooks/useProjects';
 import { clearCache } from '../services/githubService';
 import { clearMetadataCache } from '../services/repositoryMetadataService';
+import { AUTO_REFRESH_INTERVAL_MS } from '../config/github';
 
 // ---------------------------------------------------------------------------
 // Skeleton card
@@ -107,7 +108,7 @@ const StatsRow = ({ language, color, stars, forks, updatedAt }) => {
 const INITIAL_VISIBLE_COUNT = 6;
 
 const Projects = () => {
-  const { projects, loading, error, retry } = useProjects();
+  const { projects, loading, error, retry, refreshSilently } = useProjects();
   const shouldReduceMotion = useReducedMotion();
   const [selectedProject, setSelectedProject] = useState(null);
   // Dedicated flag so the refresh icon only spins on manual refresh,
@@ -115,6 +116,9 @@ const Projects = () => {
   const [refreshing, setRefreshing] = useState(false);
   // Progressive disclosure: show a curated first page, expand on demand.
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
+  // Timestamp of the last successful fetch (visible or silent) — shown as a
+  // subtle caption so visitors can see the section is staying fresh.
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   // Manual refresh (FR-010/SC-006): invalidate the GitHub repo + metadata
   // caches, then re-fetch immediately. The dashboard cache is intentionally
@@ -126,6 +130,49 @@ const Projects = () => {
     setVisibleCount(INITIAL_VISIBLE_COUNT);
     retry();
   }, [retry]);
+
+  // Auto-refresh (silent): every few minutes, invalidate the caches and
+  // re-fetch in the background so newly pinned / newly created repos appear
+  // without a manual refresh. Skips while the tab is hidden (saves GitHub
+  // API quota) and is throttled to one run per interval.
+  useEffect(() => {
+    // Start the throttle at mount time so the FIRST tab-return right after
+    // page load doesn't trigger an immediate extra fetch — the initial load
+    // just happened, so it would be wasted work.
+    let lastRun = Date.now();
+
+    const runAutoRefresh = () => {
+      // Don't fetch while the tab is in the background.
+      if (document.hidden) return;
+      const now = Date.now();
+      if (now - lastRun < AUTO_REFRESH_INTERVAL_MS) return;
+      lastRun = now;
+      clearCache();
+      clearMetadataCache();
+      refreshSilently();
+    };
+
+    const intervalId = setInterval(runAutoRefresh, AUTO_REFRESH_INTERVAL_MS);
+
+    // Also refresh immediately when the user returns to the tab if the
+    // interval has elapsed (background tabs are throttled by the browser).
+    const onVisibilityChange = () => {
+      if (!document.hidden) runAutoRefresh();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [refreshSilently]);
+
+  // Track when the last successful fetch landed (initial load or refresh).
+  // Gated on `error` so a failed fetch doesn't stamp a misleading fresh time.
+  useEffect(() => {
+    if (!loading && !error) setLastUpdated(new Date());
+  }, [loading, error, projects]);
+
 
   const isExpanded = visibleCount >= projects.length;
   const visibleProjects = isExpanded ? projects : projects.slice(0, visibleCount);
@@ -140,7 +187,31 @@ const Projects = () => {
   return (
     <section id="projects" className="section">
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
-        <SectionHeading number="03." title="Featured Projects" />
+        <div style={{ minWidth: 0 }}>
+          <SectionHeading number="03." title="Featured Projects" />
+          {lastUpdated && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.72rem',
+                color: 'var(--color-text-muted)',
+                opacity: 0.8,
+                marginTop: '0.35rem',
+                whiteSpace: 'nowrap',
+              }}
+              title="Automatically re-checks GitHub for new pinned projects every few minutes"
+            >
+              <motion.span
+                animate={refreshing ? { opacity: [0.4, 1, 0.4] } : { opacity: 1 }}
+                transition={refreshing ? { repeat: Infinity, duration: 1.4 } : { duration: 0.2 }}
+                style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', flexShrink: 0 }}
+              />
+              Auto-updates every {Math.round(AUTO_REFRESH_INTERVAL_MS / 60000)} min · {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          )}
+        </div>
         <motion.button
           type="button"
           onClick={handleRefresh}

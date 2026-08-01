@@ -10,7 +10,8 @@ import { getProjects } from '../services/projectService';
  * @property {Project[]} projects
  * @property {boolean} loading
  * @property {Error|null} error
- * @property {() => void} retry
+ * @property {() => void} retry           – Visible refresh (shows skeleton + errors)
+ * @property {() => void} refreshSilently – Background refresh (keeps current UI)
  */
 
 /**
@@ -36,11 +37,16 @@ export function useProjects() {
   // ------------------------------------------------------------------
   // Fetch function (stable reference via useCallback)
   // ------------------------------------------------------------------
-  const fetchProjects = useCallback(async () => {
+  const fetchProjects = useCallback(async ({ silent = false } = {}) => {
     const requestId = ++requestIdRef.current;
 
-    setLoading(true);
-    setError(null);
+    // A visible fetch shows the skeleton and surfaces errors; a silent
+    // (background) fetch keeps the current UI on screen — it only swaps in
+    // new data when it arrives, and never replaces a good state with an error.
+    if (!silent) {
+      setLoading(true);
+      setError(null);
+    }
 
     try {
       const data = await getProjects();
@@ -51,13 +57,24 @@ export function useProjects() {
       }
 
       setProjects(data);
+
+      // A silent refresh that succeeds clears any stale error state.
+      setError(null);
     } catch (err) {
       if (!mountedRef.current || requestId !== requestIdRef.current) {
         return;
       }
 
-      setError(err instanceof Error ? err : new Error(String(err)));
+      // Silent refreshes never clobber the current view with an error;
+      // the last good data stays on screen until the next fetch.
+      if (!silent) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      }
     } finally {
+      // Always clear loading for the LATEST request, silent or not. Without
+      // this, a silent refresh that supersedes an in-flight visible fetch
+      // (e.g. tab-return during a manual refresh) would leave `loading` stuck
+      // `true` and the skeleton visible forever.
       if (mountedRef.current && requestId === requestIdRef.current) {
         setLoading(false);
       }
@@ -77,11 +94,15 @@ export function useProjects() {
   }, [fetchProjects]);
 
   // ------------------------------------------------------------------
-  // Stable retry callback (same reference across renders)
+  // Stable retry callbacks (same references across renders)
   // ------------------------------------------------------------------
   const retry = useCallback(() => {
-    fetchProjects();
+    fetchProjects({ silent: false });
   }, [fetchProjects]);
 
-  return { projects, loading, error, retry };
+  const refreshSilently = useCallback(() => {
+    fetchProjects({ silent: true });
+  }, [fetchProjects]);
+
+  return { projects, loading, error, retry, refreshSilently };
 }
