@@ -1,4 +1,4 @@
-# Project Title
+# Portfolio
 > A motion-rich React/Vite portfolio for showcasing projects, education, certifications, and contact details.
 
 ![Badges: build-passing, license-private, version-0.0.0](https://img.shields.io/badge/build-passing-22c55e) ![Version](https://img.shields.io/badge/version-0.0.0-2563eb) ![License](https://img.shields.io/badge/license-private-64748b)
