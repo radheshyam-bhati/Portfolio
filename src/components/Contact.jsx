@@ -3,14 +3,31 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, MapPin, Linkedin, Github, Send, Loader2, Check, Copy } from 'lucide-react';
 import SectionHeading from './SectionHeading';
 import { portfolioData } from '../data/portfolioData';
+import { useProfile } from '../hooks/useProfile';
 import {
   buildContactPayload,
   getContactFormEndpoint,
+  isSubmitCoolingDown,
   validateContactForm,
 } from '../utils/contactForm';
 
-const INITIAL_FORM_DATA = { name: '', email: '', message: '' };
+const INITIAL_FORM_DATA = { name: '', email: '', message: '', company_site: '' };
 const INITIAL_STATUS = { type: '', message: '' };
+
+// Hidden honeypot field — real humans never fill it; bots do. When it has a
+// value, the form silently pretends to succeed without sending anything.
+// Named `company_site` (not a browser-autofill token) so legitimate visitors'
+// saved profiles can never auto-fill it and silently swallow their message.
+const HONEYPOT_INPUT_STYLE = {
+  position: 'absolute',
+  left: '-9999px',
+  top: 'auto',
+  width: '1px',
+  height: '1px',
+  overflow: 'hidden',
+  opacity: 0,
+  pointerEvents: 'none',
+};
 
 const FloatingInput = ({
   id,
@@ -77,12 +94,17 @@ const Contact = () => {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const statusResetTimeoutRef = useRef(0);
   const submitAbortControllerRef = useRef(null);
+  const lastSubmittedAtRef = useRef(null);
+
+  const { profile } = useProfile();
+
+  // Use GitHub profile URL when available, fall back to hardcoded value
+  const githubUrl = profile?.profileUrl || portfolioData.personalInfo.github;
 
   const {
     email: contactEmail,
     location,
     linkedin,
-    github,
   } = portfolioData.personalInfo;
 
   const handleCopyEmail = (e) => {
@@ -165,10 +187,29 @@ const Contact = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const { errorMessage, sanitizedValues } = validateContactForm(formData);
+    // Client-side rate limit: block rapid-fire resubmits (spam/bots).
+    if (isSubmitCoolingDown(lastSubmittedAtRef.current)) {
+      setStatus({
+        type: 'error',
+        message: 'You are sending messages too quickly. Please wait a moment and try again.',
+      });
+      return;
+    }
+
+    const { errorMessage, isSpam, sanitizedValues } = validateContactForm(formData);
 
     if (errorMessage) {
       setStatus({ type: 'error', message: errorMessage });
+      return;
+    }
+
+    // Honeypot tripped — a bot filled the hidden field. Pretend success so
+    // the bot never learns the form is protected, but send nothing.
+    if (isSpam) {
+      setFormData(INITIAL_FORM_DATA);
+      setButtonState('success');
+      setStatus({ type: 'success', message: 'Thanks for reaching out! Your message has been sent.' });
+      resetSuccessState();
       return;
     }
 
@@ -195,6 +236,9 @@ const Contact = () => {
         throw new Error(responseBody?.message || 'The message could not be sent.');
       }
 
+      // Only start the 30s cooldown on a successful send — a failed request
+      // should not lock the user out of retrying.
+      lastSubmittedAtRef.current = Date.now();
       setFormData(INITIAL_FORM_DATA);
       setButtonState('success');
       setStatus({ type: 'success', message: 'Thanks for reaching out! Your message has been sent.' });
@@ -227,7 +271,7 @@ const Contact = () => {
           transition={{ delay: 0.1 }}
         >
           <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem', marginBottom: '2.5rem', lineHeight: 1.8 }}>
-            I'm looking for internships and builder-focused opportunities where I can contribute across <span style={{ color: 'white', fontWeight: 500 }}>AI, cybersecurity, full-stack development, and product execution.</span>
+            I&apos;m looking for internships and builder-focused opportunities where I can contribute across <span style={{ color: 'white', fontWeight: 500 }}>AI, cybersecurity, full-stack development, and product execution.</span>
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -241,7 +285,7 @@ const Contact = () => {
                   <div style={{ fontSize: '0.95rem', fontWeight: 500, wordBreak: 'break-all' }}>{contactEmail}</div>
                 </div>
               </a>
-              
+
               <button
                 type="button"
                 onClick={handleCopyEmail}
@@ -261,7 +305,7 @@ const Contact = () => {
                   transition: 'all 0.2s',
                   marginLeft: '10px',
                   position: 'relative',
-                  flexShrink: 0
+                  flexShrink: 0,
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'white'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = copiedEmail ? '#22c55e' : 'var(--color-text-muted)'; }}
@@ -290,7 +334,7 @@ const Contact = () => {
                     fontWeight: 'bold',
                     whiteSpace: 'nowrap',
                     boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)',
-                    pointerEvents: 'none'
+                    pointerEvents: 'none',
                   }}>
                     Copied!
                   </span>
@@ -318,13 +362,13 @@ const Contact = () => {
               </div>
             </a>
 
-            <a href={github} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '1rem', textDecoration: 'none', color: 'inherit' }}>
+            <a href={githubUrl} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '1rem', textDecoration: 'none', color: 'inherit' }}>
               <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626' }}>
                 <Github size={20} />
               </div>
               <div>
                 <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>GitHub</div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 500 }}>github.com/radheshyam-cod</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 500 }}>{githubUrl.replace('https://', '')}</div>
               </div>
             </a>
           </div>
@@ -339,77 +383,91 @@ const Contact = () => {
           style={{ padding: '2rem' }}
         >
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Honeypot field: hidden from humans, irresistible to bots. */}
+            <div aria-hidden="true" style={HONEYPOT_INPUT_STYLE}>
+              <label htmlFor="contact-company-site">Company Site</label>
+              <input
+                id="contact-company-site"
+                type="text"
+                name="company_site"
+                value={formData.company_site}
+                onChange={handleChange}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+
             {status.message && (
-              <div style={{ 
-                padding: '1rem', 
-                borderRadius: '8px', 
+              <div style={{
+                padding: '1rem',
+                borderRadius: '8px',
                 fontSize: '0.9rem',
                 backgroundColor: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : status.type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                 color: status.type === 'error' ? '#ef4444' : status.type === 'success' ? '#22c55e' : 'white',
-                border: `1px solid ${status.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : status.type === 'success' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255,255,255,0.1)'}`
+                border: `1px solid ${status.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : status.type === 'success' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255,255,255,0.1)'}`,
               }}>
                 {status.message}
               </div>
             )}
-            
-            <FloatingInput 
+
+            <FloatingInput
               id="contact-name"
-              label="Your Name" 
-              name="name" 
-              value={formData.name} 
-              onChange={handleChange} 
-            />
-            
-            <FloatingInput 
-              id="contact-email"
-              label="Email Address" 
-              name="email" 
-              type="email" 
-              value={formData.email} 
-              onChange={handleChange} 
-            />
-            
-            <FloatingInput 
-              id="contact-message"
-              label="Message" 
-              name="message" 
-              value={formData.message} 
-              onChange={handleChange} 
-              isTextArea 
+              label="Your Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
             />
 
-            <button 
-              type="submit" 
+            <FloatingInput
+              id="contact-email"
+              label="Email Address"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+
+            <FloatingInput
+              id="contact-message"
+              label="Message"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              isTextArea
+            />
+
+            <button
+              type="submit"
               disabled={buttonState !== 'idle'}
-              className="btn-primary" 
-              style={{ 
-                width: '100%', 
-                justifyContent: 'center', 
-                padding: '1rem', 
-                fontSize: '1rem', 
-                filter: buttonState !== 'idle' ? 'contrast(0.8) brightness(0.9)' : 'none', 
+              className="btn-primary"
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+                padding: '1rem',
+                fontSize: '1rem',
+                filter: buttonState !== 'idle' ? 'contrast(0.8) brightness(0.9)' : 'none',
                 cursor: buttonState !== 'idle' ? 'not-allowed' : 'pointer',
-                height: '56px' 
+                height: '56px',
               }}
             >
               <AnimatePresence mode="wait">
                 {buttonState === 'idle' && (
-                  <motion.div 
-                    key="idle" 
-                    initial={{ opacity: 0, y: 15 }} 
-                    animate={{ opacity: 1, y: 0 }} 
-                    exit={{ opacity: 0, y: -15 }} 
+                  <motion.div
+                    key="idle"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
                     style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
                     Send Message <Send size={18} />
                   </motion.div>
                 )}
                 {buttonState === 'submitting' && (
-                  <motion.div 
-                    key="submitting" 
-                    initial={{ opacity: 0, scale: 0.8 }} 
-                    animate={{ opacity: 1, scale: 1 }} 
-                    exit={{ opacity: 0, scale: 0.8 }} 
+                  <motion.div
+                    key="submitting"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
                     style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
                     <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
@@ -419,11 +477,11 @@ const Contact = () => {
                   </motion.div>
                 )}
                 {buttonState === 'success' && (
-                  <motion.div 
-                    key="success" 
-                    initial={{ opacity: 0, scale: 0.8 }} 
-                    animate={{ opacity: 1, scale: 1 }} 
-                    exit={{ opacity: 0, scale: 0.8 }} 
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
                     style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
                     <Check size={18} /> Sent!

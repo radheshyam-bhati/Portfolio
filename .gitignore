@@ -13,6 +13,11 @@ dist-ssr
 .env
 *.local
 
+# Spec Kit / coding agent folders may hold credentials or auth tokens
+.myagent/
+.specify/
+specs/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
