@@ -1,0 +1,3 @@
+## 2025-01-20 - Dynamic Accessibility Attributes in Mapped Collections
+**Learning:** Icon-only links within mapped collections (like grids or lists of items) must use dynamic, context-specific text (e.g., incorporating the item's title or ID) for `aria-label` and `title` attributes. Using static attributes like `aria-label="GitHub"` on multiple distinct links creates a confusing and unnavigable experience for screen reader users, as they cannot distinguish which item the link belongs to.
+**Action:** When mapping over data to generate UI elements containing icon-only interactive elements, always ensure accessibility attributes are dynamically interpolated with the item's context (e.g., `aria-label={\`View \${item.title} on GitHub\`}`).
