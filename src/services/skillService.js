@@ -1,4 +1,5 @@
 import { fetchAllRepositories } from './githubService';
+import { curatedSkills } from '../data/portfolioData';
 import {
   normaliseSkillName,
   isSkillName,
@@ -73,6 +74,19 @@ export function aggregateAndGroup(repos) {
         }
         repoCount.get(normalised).add(repo.id);
       }
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // 1b. Seed the curated baseline so the section is never empty and always
+  //     shows the owner's guaranteed skill list, merged with whatever GitHub
+  //     auto-detects. Curated names get an empty repo-set (count 0) unless a
+  //     repo already contributes them, so real usage always ranks higher.
+  // -----------------------------------------------------------------------
+  for (const rawName of curatedSkills) {
+    const normalised = normaliseSkillName(rawName);
+    if (isSkillName(normalised) && !repoCount.has(normalised)) {
+      repoCount.set(normalised, new Set());
     }
   }
 

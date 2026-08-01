@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ExternalLink, Github, RefreshCw, Star, GitFork, Code2, Calendar } from 'lucide-react';
+import { ExternalLink, Github, RefreshCw, Star, GitFork, Code2, Calendar, Pin, ChevronDown, ChevronUp } from 'lucide-react';
 import SectionHeading from './SectionHeading';
 import TiltCard from './TiltCard';
 import ProjectModal from './ProjectModal';
@@ -103,6 +103,9 @@ const StatsRow = ({ language, color, stars, forks, updatedAt }) => {
 // Projects section
 // ---------------------------------------------------------------------------
 
+// How many project cards to render before the "See all projects" button.
+const INITIAL_VISIBLE_COUNT = 6;
+
 const Projects = () => {
   const { projects, loading, error, retry } = useProjects();
   const shouldReduceMotion = useReducedMotion();
@@ -110,6 +113,8 @@ const Projects = () => {
   // Dedicated flag so the refresh icon only spins on manual refresh,
   // not during the initial page-load skeleton.
   const [refreshing, setRefreshing] = useState(false);
+  // Progressive disclosure: show a curated first page, expand on demand.
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
 
   // Manual refresh (FR-010/SC-006): invalidate the GitHub repo + metadata
   // caches, then re-fetch immediately. The dashboard cache is intentionally
@@ -118,8 +123,12 @@ const Projects = () => {
     clearCache();
     clearMetadataCache();
     setRefreshing(true);
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
     retry();
   }, [retry]);
+
+  const isExpanded = visibleCount >= projects.length;
+  const visibleProjects = isExpanded ? projects : projects.slice(0, visibleCount);
 
   // Clear the spinner once the manual refresh finishes.
   useEffect(() => {
@@ -186,12 +195,12 @@ const Projects = () => {
         {!loading && !error && projects.length === 0 && (
           <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', padding: '4rem 2rem', textAlign: 'center' }}>
             <p style={{ color: 'var(--color-text-muted)', fontSize: '1.05rem', lineHeight: '1.6', maxWidth: '420px' }}>
-              No featured projects yet. Check back soon!
+              No projects yet. Check back soon!
             </p>
           </div>
         )}
 
-        {!loading && !error && projects.map((project, idx) => {
+        {!loading && !error && visibleProjects.map((project, idx) => {
           const isEven = idx % 2 === 0;
           const xOffset = isEven ? -80 : 80;
 
@@ -239,7 +248,30 @@ const Projects = () => {
 
                 {/* Badge + icon row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', transformStyle: 'preserve-3d' }}>
-                  <div style={{ transform: 'translateZ(20px)' }}>
+                  <div style={{ transform: 'translateZ(20px)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {project.featured && (
+                      <span
+                        className="badge"
+                        title="Pinned — appears first in the Projects section"
+                        style={{
+                          fontSize: '0.7rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '1px',
+                          fontWeight: 'bold',
+                          padding: '4px 10px',
+                          borderRadius: '20px',
+                          background: 'rgba(255,255,255,0.06)',
+                          color: 'var(--color-text-muted)',
+                          border: '1px solid rgba(255,255,255,0.12)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        <Pin size={10} />
+                        Pinned
+                      </span>
+                    )}
                     <span
                       className="badge"
                       style={{
@@ -339,6 +371,42 @@ const Projects = () => {
           );
         })}
       </div>
+
+      {/* Show all / show less toggle (only when there is more to reveal) */}
+      {!loading && !error && projects.length > INITIAL_VISIBLE_COUNT && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2.5rem' }}>
+          <motion.button
+            type="button"
+            onClick={() =>
+              setVisibleCount(isExpanded ? INITIAL_VISIBLE_COUNT : projects.length)
+            }
+            aria-expanded={isExpanded}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            className="btn-secondary"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 28px',
+              fontSize: '0.95rem',
+              borderRadius: '12px',
+            }}
+          >
+            {isExpanded ? (
+              <>
+                Show less
+                <ChevronUp size={16} />
+              </>
+            ) : (
+              <>
+                See all projects ({projects.length})
+                <ChevronDown size={16} />
+              </>
+            )}
+          </motion.button>
+        </div>
+      )}
 
       {/* --- Project detail modal --- */}
       {selectedProject && (

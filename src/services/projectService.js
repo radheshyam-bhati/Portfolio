@@ -46,6 +46,10 @@ import { projectOverrides } from '../data/portfolioData';
  */
 function mergeMetadata(repo, metadata) {
   const topics = repo.topics ?? [];
+  // Repos tagged `featured`/`portfolio` are treated as *pinned*: they sort
+  // to the top of the Projects section. All other public repos still show
+  // (no tag required), ordered by most recent activity.
+  const isPinned = topics.includes('featured') || topics.includes('portfolio');
 
   const project = {
     id: repo.id,
@@ -60,8 +64,8 @@ function mergeMetadata(repo, metadata) {
     forks: repo.forks_count,
     language: repo.language,
     updatedAt: repo.updated_at,
-    featured: true,
-    priority: 99,
+    featured: isPinned,
+    priority: isPinned ? 1 : 99,
     tag: deriveTag(topics, repo.language),
     color: accentColourForLanguage(repo.language),
     // --- New fields ---
@@ -132,7 +136,9 @@ function mergeMetadata(repo, metadata) {
 // ---------------------------------------------------------------------------
 
 /**
- * Sorts projects by `priority` ascending, then `updatedAt` descending.
+ * Sorts projects: pinned repos first (`priority` ascending — pinned = 1,
+ * everything else = 99), then most recently updated (`updatedAt` descending),
+ * then alphabetically as a stable tiebreak.
  *
  * @param {Project[]} projects
  * @returns {Project[]}

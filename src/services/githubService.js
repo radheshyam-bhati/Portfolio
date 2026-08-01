@@ -1,4 +1,4 @@
-import { GITHUB_API_BASE, GITHUB_USERNAME, CACHE_TTL_MS, PREVIEW_ALL_REPOS } from '../config/github';
+import { GITHUB_API_BASE, GITHUB_USERNAME, CACHE_TTL_MS } from '../config/github';
 import { createCache } from '../utils/cache';
 
 /**
@@ -42,7 +42,6 @@ import { createCache } from '../utils/cache';
 // Cache instances (one per data type)
 // ---------------------------------------------------------------------------
 
-const featuredRepoCache = createCache({ ttl: CACHE_TTL_MS });
 const allRepoCache = createCache({ ttl: CACHE_TTL_MS });
 const profileCache = createCache({ ttl: CACHE_TTL_MS });
 const repoLanguagesCache = createCache({ ttl: CACHE_TTL_MS });
@@ -118,29 +117,24 @@ async function fetchWithCache(cacheKey, url, cache, useTopicsHeader = false) {
 }
 
 // ---------------------------------------------------------------------------
-// Featured-repo filter (pure, unit-testable)
+// Shown-repo filter (pure, unit-testable)
 // ---------------------------------------------------------------------------
 
 /**
- * Decides whether a repository should appear in the Featured Projects
- * section.
+ * Decides whether a repository should appear in the Projects section.
  *
- * Pure function (no I/O) so it can be unit-tested directly in both
- * `previewAll` states. Forks, archived, and private repos are always
- * excluded. Otherwise a repo is shown when it carries the `featured` or
- * `portfolio` topic — or, in dev preview mode, whenever it is simply public.
+ * Pure function (no I/O) so it can be unit-tested directly. Every public
+ * repo is shown — no `featured`/`portfolio` topic tag is required anymore.
+ * Forks, archived, and private repos are always excluded.
+ *
+ * Repos tagged `featured` or `portfolio` are treated as *pinned*: they sort
+ * to the top of the Projects section (see projectService `mergeMetadata`).
  *
  * @param {GitHubRepo} repo
- * @param {{ previewAll?: boolean }} [options]
  * @returns {boolean}
  */
-export function isFeaturedRepo(repo, { previewAll = false } = {}) {
-  if (repo.fork || repo.archived || repo.private) return false;
-  // Dev preview: show every public repo without requiring a topic tag.
-  // Enabled via VITE_PREVIEW_ALL_REPOS=true (never active in production).
-  if (previewAll) return true;
-  const topics = repo.topics ?? [];
-  return topics.includes('featured') || topics.includes('portfolio');
+export function isShownRepo(repo) {
+  return !(repo.fork || repo.archived || repo.private);
 }
 
 // ---------------------------------------------------------------------------
@@ -148,16 +142,17 @@ export function isFeaturedRepo(repo, { previewAll = false } = {}) {
 // ---------------------------------------------------------------------------
 
 /**
- * Fetches featured/public repositories (topic: featured or portfolio).
+ * Fetches ALL public repositories for the Projects section.
+ *
+ * Every public repo is included (non-fork, non-archived, non-private). The
+ * `featured`/`portfolio` topic only controls pinning/sorting, not visibility.
+ *
+ * Delegates to `fetchAllRepositories` so both paths share one cached fetch.
  *
  * @returns {Promise<GitHubRepo[]>}
  */
 export async function fetchRepositories() {
-  const url = `${GITHUB_API_BASE}/users/${encodeURIComponent(GITHUB_USERNAME)}/repos?sort=updated&per_page=100`;
-
-  const allRepos = await fetchWithCache('featured', url, featuredRepoCache, true);
-
-  return allRepos.filter((repo) => isFeaturedRepo(repo, { previewAll: PREVIEW_ALL_REPOS }));
+  return fetchAllRepositories();
 }
 
 /**
@@ -170,7 +165,7 @@ export async function fetchAllRepositories() {
 
   const allRepos = await fetchWithCache('all', url, allRepoCache, true);
 
-  return allRepos.filter((repo) => !repo.fork && !repo.archived && !repo.private);
+  return allRepos.filter((repo) => isShownRepo(repo));
 }
 
 /**
@@ -209,7 +204,6 @@ export async function fetchUserProfile() {
  * Clears all in-memory caches.
  */
 export function clearCache() {
-  featuredRepoCache.clear();
   allRepoCache.clear();
   profileCache.clear();
   repoLanguagesCache.clear();

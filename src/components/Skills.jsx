@@ -17,6 +17,16 @@ import {
   LayoutDashboard,
   FileText,
   LineChart,
+  GitBranch,
+  Github,
+  Monitor,
+  Sparkles,
+  Wind,
+  Cpu,
+  Rocket,
+  Workflow,
+  Boxes,
+  Network,
 } from 'lucide-react';
 import SectionHeading from './SectionHeading';
 import { useSkills } from '../hooks/useSkills';
@@ -27,11 +37,14 @@ const skillIcons = {
   C: Terminal,
   'C++': Braces,
   Java: Coffee,
+  JavaScript: FileCode,
+  TypeScript: FileCode,
 
   // Web & Mobile Development
   HTML5: Globe,
+  HTML: Globe,
   CSS: Palette,
-  JavaScript: FileCode,
+  CSS3: Palette,
   React: Atom,
   'Node.js': Server,
   FastAPI: Zap,
@@ -40,12 +53,32 @@ const skillIcons = {
   // Databases & Infrastructure
   PostgreSQL: Database,
   MySQL: Database,
+  IndexedDB: Database,
+  LocalStorage: Database,
 
-  // Data & Visualization
+  // AI & Data
+  'OpenAI API': Sparkles,
   'Power BI': BarChart3,
   Dashboards: LayoutDashboard,
+  Dashboarding: LayoutDashboard,
   Reporting: FileText,
   'Data Analysis': LineChart,
+
+  // Tools & Platforms
+  Git: GitBranch,
+  GitHub: Github,
+  'VS Code': Monitor,
+  GSAP: Wind,
+  Lenis: Wind,
+  Linux: Terminal,
+  'GitHub Pages': Globe,
+
+  // Concepts
+  OOP: Boxes,
+  DSA: Network,
+  'REST APIs': Workflow,
+  'Client-Side Architecture': Cpu,
+  'Agile Development': Rocket,
 };
 
 const SkillChip = ({ skill, groupColor, customDelay }) => {

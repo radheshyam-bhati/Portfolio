@@ -9,7 +9,7 @@
 // when the repo has none (e.g. IntelliDine has no GitHub description).
 
 /**
- * @type {Record<string, { summary?: string, extraLanguages?: string[] }>}
+ * @type {Record<string, { summary?: string, extraLanguages?: string[], hidden?: boolean }>}
  */
 export const projectOverrides = {
   IntelliDine: {
@@ -18,6 +18,38 @@ export const projectOverrides = {
     extraLanguages: ['Python', 'CSS', 'MySQL', 'Figma', 'UI/UX', 'JavaScript', 'Java'],
   },
 };
+
+// ---------------------------------------------------------------------------
+// Curated Technical Skills baseline
+// ---------------------------------------------------------------------------
+//
+// These skills ALWAYS appear in the Technical Skills section, merged with
+// skills auto-detected from GitHub (primary languages + topics). New repos
+// automatically add their languages/topics on top — nothing is ever removed.
+// Edit this list (no code logic changes) to add/remove the guaranteed skills.
+
+/**
+ * Skills that are always shown in the Technical Skills section, grouped by
+ * the category they render under.
+ *
+ * @type {string[]}
+ */
+export const curatedSkills = [
+  // Programming Languages
+  'Python', 'C', 'C++', 'Java', 'JavaScript',
+  // Frontend (Web & Full-Stack)
+  'HTML5', 'CSS3', 'React',
+  // Backend (Web & Full-Stack)
+  'Node.js', 'FastAPI', 'Firebase',
+  // Databases
+  'PostgreSQL', 'MySQL', 'IndexedDB', 'LocalStorage',
+  // AI & Data
+  'OpenAI API', 'Power BI', 'Data Analysis', 'Dashboarding',
+  // Tools & Platforms
+  'Git', 'GitHub', 'VS Code', 'GSAP', 'Lenis', 'Linux', 'GitHub Pages',
+  // Concepts
+  'OOP', 'DSA', 'REST APIs', 'Client-Side Architecture', 'Agile Development',
+];
 
 export const portfolioData = {
   personalInfo: {

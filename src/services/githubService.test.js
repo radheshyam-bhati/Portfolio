@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { isFeaturedRepo, fetchRepositories, clearCache } from './githubService';
+import { isShownRepo, fetchRepositories, clearCache } from './githubService';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -38,76 +38,37 @@ const privateRepo = makeRepo({ id: 6, name: 'private-repo', topics: ['featured']
 const ALL_REPOS = [featuredRepo, portfolioRepo, untaggedRepo, forkedRepo, archivedRepo, privateRepo];
 
 // ---------------------------------------------------------------------------
-// isFeaturedRepo — PREVIEW_ALL_REPOS OFF (production default)
+// isShownRepo — every public repo is shown (no topic tag required)
 // ---------------------------------------------------------------------------
 
-describe('isFeaturedRepo with previewAll OFF (production filter)', () => {
-  it('includes a public repo tagged `featured`', () => {
-    expect(isFeaturedRepo(featuredRepo)).toBe(true);
+describe('isShownRepo (production filter)', () => {
+  it('includes an untagged public repo — no topic required', () => {
+    expect(isShownRepo(untaggedRepo)).toBe(true);
   });
 
-  it('includes a public repo tagged `portfolio`', () => {
-    expect(isFeaturedRepo(portfolioRepo)).toBe(true);
+  it('includes a public repo tagged `featured` or `portfolio`', () => {
+    expect(isShownRepo(featuredRepo)).toBe(true);
+    expect(isShownRepo(portfolioRepo)).toBe(true);
   });
 
-  it('includes a repo tagged with both topics', () => {
-    expect(
-      isFeaturedRepo(makeRepo({ topics: ['featured', 'portfolio'] })),
-    ).toBe(true);
-  });
-
-  it('excludes untagged public repos', () => {
-    expect(isFeaturedRepo(untaggedRepo)).toBe(false);
-  });
-
-  it('excludes public repos with an unrelated topic', () => {
-    expect(isFeaturedRepo(makeRepo({ topics: ['hackathon'] }))).toBe(false);
-  });
-
-  it('handles a missing topics field as untagged', () => {
-    expect(isFeaturedRepo(makeRepo({ topics: undefined }))).toBe(false);
-  });
-
-  it('excludes forks even when tagged `featured`', () => {
-    expect(isFeaturedRepo(forkedRepo)).toBe(false);
-  });
-
-  it('excludes archived repos even when tagged `portfolio`', () => {
-    expect(isFeaturedRepo(archivedRepo)).toBe(false);
-  });
-
-  it('excludes private repos even when tagged `featured`', () => {
-    expect(isFeaturedRepo(privateRepo)).toBe(false);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// isFeaturedRepo — PREVIEW_ALL_REPOS ON (dev preview)
-// ---------------------------------------------------------------------------
-
-describe('isFeaturedRepo with previewAll ON (dev preview)', () => {
-  const preview = { previewAll: true };
-
-  it('includes every public repo regardless of topics', () => {
-    expect(isFeaturedRepo(featuredRepo, preview)).toBe(true);
-    expect(isFeaturedRepo(untaggedRepo, preview)).toBe(true);
-    expect(isFeaturedRepo(makeRepo({ topics: ['hackathon'] }), preview)).toBe(true);
+  it('includes a public repo with an unrelated topic', () => {
+    expect(isShownRepo(makeRepo({ topics: ['hackathon'] }))).toBe(true);
   });
 
   it('includes a public repo with a missing topics field', () => {
-    expect(isFeaturedRepo(makeRepo({ topics: undefined }), preview)).toBe(true);
+    expect(isShownRepo(makeRepo({ topics: undefined }))).toBe(true);
   });
 
-  it('still excludes forks', () => {
-    expect(isFeaturedRepo(forkedRepo, preview)).toBe(false);
+  it('excludes forks even when tagged `featured`', () => {
+    expect(isShownRepo(forkedRepo)).toBe(false);
   });
 
-  it('still excludes archived repos', () => {
-    expect(isFeaturedRepo(archivedRepo, preview)).toBe(false);
+  it('excludes archived repos even when tagged `portfolio`', () => {
+    expect(isShownRepo(archivedRepo)).toBe(false);
   });
 
-  it('still excludes private repos', () => {
-    expect(isFeaturedRepo(privateRepo, preview)).toBe(false);
+  it('excludes private repos even when tagged `featured`', () => {
+    expect(isShownRepo(privateRepo)).toBe(false);
   });
 });
 
@@ -127,7 +88,7 @@ function stubReposResponse(repos) {
   );
 }
 
-describe('fetchRepositories (filter OFF / default)', () => {
+describe('fetchRepositories (all public repos shown)', () => {
   beforeEach(() => {
     clearCache();
     stubReposResponse(ALL_REPOS);
@@ -138,11 +99,12 @@ describe('fetchRepositories (filter OFF / default)', () => {
     clearCache();
   });
 
-  it('returns only tagged, public, non-fork, non-archived repos', async () => {
+  it('returns every public repo — tagged or not — while hiding forks, archived and private', async () => {
     const result = await fetchRepositories();
     expect(result.map((repo) => repo.name).sort()).toEqual([
       'featured-repo',
       'portfolio-repo',
+      'untagged-repo',
     ]);
   });
 
@@ -151,35 +113,5 @@ describe('fetchRepositories (filter OFF / default)', () => {
     const calls = vi.mocked(fetch).mock.calls.length;
     await fetchRepositories();
     expect(vi.mocked(fetch).mock.calls.length).toBe(calls);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// fetchRepositories — integration with PREVIEW_ALL_REPOS enabled
-// ---------------------------------------------------------------------------
-
-describe('fetchRepositories (preview ON)', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.resetModules();
-    vi.unstubAllEnvs();
-    clearCache();
-  });
-
-  it('shows every public repo while still hiding forks and private repos', async () => {
-    vi.stubEnv('VITE_PREVIEW_ALL_REPOS', 'true');
-    vi.resetModules();
-    stubReposResponse(ALL_REPOS);
-
-    const { fetchRepositories: fetchPreview } = await import('./githubService');
-
-    const result = await fetchPreview();
-    // Archived repos are excluded in every mode (fork/archived/private
-    // are filtered before the previewAll check).
-    expect(result.map((repo) => repo.name).sort()).toEqual([
-      'featured-repo',
-      'portfolio-repo',
-      'untagged-repo',
-    ]);
   });
 });

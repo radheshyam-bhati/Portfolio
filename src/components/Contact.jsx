@@ -7,11 +7,27 @@ import { useProfile } from '../hooks/useProfile';
 import {
   buildContactPayload,
   getContactFormEndpoint,
+  isSubmitCoolingDown,
   validateContactForm,
 } from '../utils/contactForm';
 
-const INITIAL_FORM_DATA = { name: '', email: '', message: '' };
+const INITIAL_FORM_DATA = { name: '', email: '', message: '', company_site: '' };
 const INITIAL_STATUS = { type: '', message: '' };
+
+// Hidden honeypot field — real humans never fill it; bots do. When it has a
+// value, the form silently pretends to succeed without sending anything.
+// Named `company_site` (not a browser-autofill token) so legitimate visitors'
+// saved profiles can never auto-fill it and silently swallow their message.
+const HONEYPOT_INPUT_STYLE = {
+  position: 'absolute',
+  left: '-9999px',
+  top: 'auto',
+  width: '1px',
+  height: '1px',
+  overflow: 'hidden',
+  opacity: 0,
+  pointerEvents: 'none',
+};
 
 const FloatingInput = ({
   id,
@@ -78,6 +94,7 @@ const Contact = () => {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const statusResetTimeoutRef = useRef(0);
   const submitAbortControllerRef = useRef(null);
+  const lastSubmittedAtRef = useRef(null);
 
   const { profile } = useProfile();
 
@@ -170,10 +187,29 @@ const Contact = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const { errorMessage, sanitizedValues } = validateContactForm(formData);
+    // Client-side rate limit: block rapid-fire resubmits (spam/bots).
+    if (isSubmitCoolingDown(lastSubmittedAtRef.current)) {
+      setStatus({
+        type: 'error',
+        message: 'You are sending messages too quickly. Please wait a moment and try again.',
+      });
+      return;
+    }
+
+    const { errorMessage, isSpam, sanitizedValues } = validateContactForm(formData);
 
     if (errorMessage) {
       setStatus({ type: 'error', message: errorMessage });
+      return;
+    }
+
+    // Honeypot tripped — a bot filled the hidden field. Pretend success so
+    // the bot never learns the form is protected, but send nothing.
+    if (isSpam) {
+      setFormData(INITIAL_FORM_DATA);
+      setButtonState('success');
+      setStatus({ type: 'success', message: 'Thanks for reaching out! Your message has been sent.' });
+      resetSuccessState();
       return;
     }
 
@@ -200,6 +236,9 @@ const Contact = () => {
         throw new Error(responseBody?.message || 'The message could not be sent.');
       }
 
+      // Only start the 30s cooldown on a successful send — a failed request
+      // should not lock the user out of retrying.
+      lastSubmittedAtRef.current = Date.now();
       setFormData(INITIAL_FORM_DATA);
       setButtonState('success');
       setStatus({ type: 'success', message: 'Thanks for reaching out! Your message has been sent.' });
@@ -344,6 +383,20 @@ const Contact = () => {
           style={{ padding: '2rem' }}
         >
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Honeypot field: hidden from humans, irresistible to bots. */}
+            <div aria-hidden="true" style={HONEYPOT_INPUT_STYLE}>
+              <label htmlFor="contact-company-site">Company Site</label>
+              <input
+                id="contact-company-site"
+                type="text"
+                name="company_site"
+                value={formData.company_site}
+                onChange={handleChange}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+
             {status.message && (
               <div style={{
                 padding: '1rem',

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://radheshyam-cod.github.io/Portfolio/sitemap.xml
+Sitemap: https://radheshyam-bhati.github.io/Portfolio/sitemap.xml
