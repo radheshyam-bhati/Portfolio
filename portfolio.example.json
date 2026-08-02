@@ -1,0 +1,56 @@
+{
+  "description": "One-line project description. Shown on the card and in the modal (overrides the GitHub repo description).",
+  "demo": "https://your-app.vercel.app",
+  "category": "AI & Web",
+  "priority": 1,
+  "featured": true,
+  "hidden": false,
+  "image": "screenshots/hero.png",
+  "extraLanguages": ["Python", "CSS", "MySQL", "Figma", "UI/UX", "Java"],
+  "summary": "Two-to-three sentence overview shown at the top of the case-study modal.",
+  "problem": "The problem this project solves.",
+  "solution": "How the project solves it.",
+  "architecture": "Free-form architecture notes shown as a paragraph.",
+  "challenges": ["Hardest technical challenge", "Second challenge"],
+  "lessons": ["What you learned", "Another lesson"],
+  "futureImprovements": ["Idea for v2", "Another roadmap item"],
+  "screenshots": ["screenshots/1.png", "screenshots/2.png", "screenshots/3.png"],
+  "demoGif": "demo/demo.gif",
+  "architectureDiagram": "docs/architecture.png",
+  "systemArchitecture": {
+    "title": "System Architecture",
+    "nodes": [
+      {
+        "id": "client",
+        "title": "React Frontend",
+        "description": "Responsive SPA",
+        "technologies": ["React", "Vite"],
+        "responsibilities": ["UI rendering", "State management"],
+        "pros": ["Fast dev loop"],
+        "cons": ["Client-side only"]
+      },
+      {
+        "id": "api",
+        "title": "API Server",
+        "description": "REST + WebSocket",
+        "technologies": ["Node.js", "Express"],
+        "responsibilities": ["Auth", "Business logic"],
+        "pros": ["Simple to deploy"],
+        "cons": ["Needs scaling"]
+      },
+      {
+        "id": "db",
+        "title": "Database",
+        "description": "Primary store",
+        "technologies": ["PostgreSQL"],
+        "responsibilities": ["Persistence"],
+        "pros": ["ACID"],
+        "cons": ["Heavier ops"]
+      }
+    ],
+    "edges": [
+      { "from": "client", "to": "api", "label": "HTTPS", "type": "arrow" },
+      { "from": "api", "to": "db", "label": "SQL", "type": "arrow" }
+    ]
+  }
+}
