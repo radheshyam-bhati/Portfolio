@@ -24,6 +24,18 @@
          only send the site origin, never the path/query. -->
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
+    <!-- Anti-Clickjacking: CSP frame-ancestors is ignored in meta tags.
+         Using frame-busting script as defense-in-depth against clickjacking. -->
+    <style id="antiClickjack">body{display:none !important;}</style>
+    <script>
+      if (self === top) {
+        var antiClickjack = document.getElementById("antiClickjack");
+        antiClickjack.parentNode.removeChild(antiClickjack);
+      } else {
+        top.location = self.location;
+      }
+    </script>
+
     <!-- Primary SEO Meta Tags -->
     <title>Radheshyam Bhati | Computer Science & Engineering | Agentic AI Systems</title>
     <meta name="description" content="Official portfolio of Radheshyam Bhati - Computer Science & Engineering student specializing in Agentic AI Systems, AI Product Engineering, Systems Thinking, and Full-Stack Development." />
