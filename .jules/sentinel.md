@@ -1,0 +1,4 @@
+## 2026-08-05 - Clickjacking Vulnerability in Static HTML
+**Vulnerability:** The static HTML site was vulnerable to clickjacking because it relied on the `frame-ancestors 'none'` directive in a `<meta>` Content Security Policy tag, which is ignored by browsers per the CSP Level 2 specification.
+**Learning:** For static sites (like those on GitHub Pages) where HTTP response headers cannot be configured natively, developers often mistakenly rely on `<meta>` tags for headers like `X-Frame-Options` or CSP `frame-ancestors`. However, these are strictly ignored by browsers.
+**Prevention:** To prevent UI redressing on static sites without header control, a client-side frame-busting script (OWASP recommended pattern: hiding the body and removing the style only if `self === top`) must be implemented as a defense-in-depth measure.
