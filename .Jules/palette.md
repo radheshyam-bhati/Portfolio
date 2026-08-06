@@ -1,0 +1,3 @@
+## 2024-10-27 - [Dynamic ARIA Labels for Mapped Collection Icons]
+**Learning:** Icon-only links within mapped collections (like grids or lists) must use dynamic, context-specific text (e.g., incorporating the item's title or ID) for `aria-label` and `title` attributes. Without this, screen reader users hear repetitive, non-descriptive labels (e.g., "GitHub", "GitHub", "GitHub") and cannot distinguish which item the action applies to.
+**Action:** When adding icon-only buttons or links inside a loop (like `project.github` or `project.live` links), always use string interpolation or template literals (e.g., `aria-label={\`View source code for \${project.title}\`}`) to provide unique, descriptive context.
