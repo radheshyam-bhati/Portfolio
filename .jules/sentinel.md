@@ -1,0 +1,4 @@
+## 2024-03-21 - [Client-Side Frame-Busting]
+**Vulnerability:** Clickjacking risk despite `frame-ancestors 'none'` in CSP `<meta>` tag, as the directive is ignored by browsers when deployed via `<meta>` instead of HTTP headers (common on static site hosts like GitHub Pages).
+**Learning:** `frame-ancestors` must be deployed via HTTP headers. On statically hosted sites where header control is limited, client-side JS frame-busting scripts are a necessary fallback to prevent the site from being framed.
+**Prevention:** Use a robust frame-busting script (e.g., hiding the body and removing the style block only if `self === top`) whenever relying on purely client-side defense for clickjacking.
